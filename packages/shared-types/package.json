@@ -1,0 +1,22 @@
+{
+  "name": "@wavlake/shared-types",
+  "version": "1.0.0",
+  "description": "Shared TypeScript types for Wavlake monorepo",
+  "main": "index.js",
+  "module": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "files": [
+    "*.d.ts",
+    "*.js",
+    "api/",
+    "nostr/",
+    "common/"
+  ],
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  }
+}

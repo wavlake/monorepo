@@ -1,0 +1,27 @@
+{
+  "name": "wavlake-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Wavlake decentralized music platform monorepo",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "task dev",
+    "build": "task build",
+    "test": "task test",
+    "setup": "task setup"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wavlake/monorepo"
+  },
+  "keywords": ["music", "nostr", "decentralized", "react", "go"],
+  "author": "Wavlake Team",
+  "license": "MIT"
+}

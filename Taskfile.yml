@@ -1,0 +1,465 @@
+# https://taskfile.dev
+version: '3'
+
+vars:
+  GO_MODULE: github.com/wavlake/monorepo
+  FRONTEND_DIR: apps/frontend
+  BACKEND_DIR: apps/backend
+  SHARED_TYPES_DIR: packages/shared-types
+  DEV_RELAY_DIR: packages/dev-relay
+  
+dotenv:
+  - .env
+  - .env.local
+
+# includes:
+#   frontend:
+#     taskfile: ./apps/frontend/Taskfile.yml
+#     dir: ./apps/frontend
+#   backend:
+#     taskfile: ./apps/backend/Taskfile.yml
+#     dir: ./apps/backend
+
+tasks:
+  # === Setup & Installation ===
+  setup:
+    desc: "Initialize the monorepo for development (TDD-ready)"
+    cmds:
+      - task: install:all
+      - task: types:generate
+      - task: test:setup
+      - "echo 'Monorepo setup complete with TDD environment!'"
+
+  install:all:
+    desc: "Install dependencies for all packages"
+    cmds:
+      - task: install:frontend
+      - task: install:backend
+      - task: install:relay
+      - task: install:testing
+
+  install:frontend:
+    desc: "Install frontend dependencies"
+    cmds:
+      - cd {{.FRONTEND_DIR}} && npm install
+
+  install:backend:
+    desc: "Install Go backend dependencies"
+    cmds:
+      - cd {{.BACKEND_DIR}} && go mod tidy
+      - cd {{.BACKEND_DIR}} && go mod download
+
+  install:relay:
+    desc: "Install nak for local nostr relay"
+    cmds:
+      - go install github.com/fiatjaf/nak@latest
+
+  install:testing:
+    desc: "Install testing dependencies and tools"
+    cmds:
+      - go install github.com/golang/mock/mockgen@latest
+      - go install github.com/onsi/ginkgo/v2/ginkgo@latest
+      - go install gotest.tools/gotestsum@latest
+      - cd {{.FRONTEND_DIR}} && npm install --save-dev @testing-library/react @testing-library/jest-dom @testing-library/user-event
+
+  # === TDD Development Workflow ===
+  tdd:
+    desc: "Start TDD development workflow (test-watch mode)"
+    cmds:
+      - task: tdd:parallel
+
+  tdd:parallel:
+    desc: "Run TDD workflow for frontend and backend in parallel"
+    cmds:
+      - |
+        trap 'kill $(jobs -p)' EXIT
+        task tdd:backend &
+        task tdd:frontend &
+        wait
+
+  tdd:backend:
+    desc: "Start Go TDD workflow with hot reload testing"
+    cmds:
+      - cd {{.BACKEND_DIR}} && ginkgo watch -r --notify
+
+  tdd:frontend:
+    desc: "Start React TDD workflow with Jest watch mode"
+    cmds:
+      - cd {{.FRONTEND_DIR}} && npm run test:watch
+
+  tdd:integration:
+    desc: "Run integration tests in watch mode"
+    cmds:
+      - task: dev:services &
+      - sleep 5
+      - cd {{.BACKEND_DIR}} && ginkgo watch -r --notify -tags=integration ./tests/integration
+
+  # === Red-Green-Refactor Helpers ===
+  red:
+    desc: "RED: Create failing test (prompts for test creation)"
+    cmds:
+      - "echo 'RED Phase: Write a failing test'"
+      - "echo 'Frontend: cd {{.FRONTEND_DIR}} && npm run test:create'"  
+      - "echo 'Backend: cd {{.BACKEND_DIR}} && ginkgo generate [package]'"
+
+  green:
+    desc: "GREEN: Run tests and implement minimum code to pass"
+    cmds:
+      - "echo 'GREEN Phase: Implement minimum code to pass'"
+      - task: test:unit:fast
+
+  refactor:
+    desc: "REFACTOR: Improve code while keeping tests green"
+    cmds:
+      - "echo 'REFACTOR Phase: Improve code structure'"
+      - task: test:unit:fast
+      - task: lint
+      - "echo 'All tests still passing after refactor'"
+
+  # === Development Commands ===
+  dev:
+    desc: "Start full development environment (frontend, backend, relay)"
+    deps: [types:generate]
+    cmds:
+      - task: dev:services
+
+  dev:services:
+    desc: "Start all development services in parallel"
+    cmds:
+      - |
+        trap 'kill $(jobs -p)' EXIT
+        task relay:dev &
+        task backend:dev &
+        task frontend:dev &
+        wait
+
+  dev:tdd:
+    desc: "Start development environment with TDD test watchers"
+    cmds:
+      - |
+        trap 'kill $(jobs -p)' EXIT
+        task relay:dev &
+        task backend:dev &
+        task frontend:dev &
+        task tdd:backend &
+        task tdd:frontend &
+        wait
+
+  dev:frontend:
+    desc: "Start frontend development server"
+    cmds:
+      - cd {{.FRONTEND_DIR}} && npm run dev
+
+  dev:backend:
+    desc: "Start Go backend in development mode"
+    cmds:
+      - cd {{.BACKEND_DIR}} && go run ./cmd/api
+
+  dev:relay:
+    desc: "Start local nostr relay using nak"
+    cmds:
+      - cd {{.DEV_RELAY_DIR}} && nak serve
+
+  dev:docker:
+    desc: "Start development environment using Docker Compose"
+    cmds:
+      - docker-compose up --build
+
+  # === Testing Commands (TDD-Focused) ===
+  test:
+    desc: "Run complete test suite (unit + integration + e2e)"
+    cmds:
+      - task: test:unit
+      - task: test:integration  
+      - task: test:e2e
+
+  test:unit:
+    desc: "Run all unit tests"
+    cmds:
+      - task: test:unit:frontend
+      - task: test:unit:backend
+
+  test:unit:fast:
+    desc: "Run unit tests with faster feedback (parallel, no coverage)"
+    cmds:
+      - task: test:unit:backend:fast &
+      - task: test:unit:frontend:fast &
+      - wait
+
+  test:unit:frontend:
+    desc: "Run frontend unit tests with coverage"
+    cmds:
+      - cd {{.FRONTEND_DIR}} && npm run test:coverage
+
+  test:unit:frontend:fast:
+    desc: "Run frontend unit tests (fast mode)"
+    cmds:
+      - cd {{.FRONTEND_DIR}} && npm test -- --watchAll=false
+
+  test:unit:backend:
+    desc: "Run Go unit tests with coverage"
+    cmds:
+      - cd {{.BACKEND_DIR}} && ginkgo -r --cover --coverprofile=coverage.out
+
+  test:unit:backend:fast:
+    desc: "Run Go unit tests (fast mode, no coverage)"
+    cmds:
+      - cd {{.BACKEND_DIR}} && ginkgo -r --randomizeAllSpecs
+
+  test:integration:
+    desc: "Run integration tests"
+    cmds:
+      - task: test:services:start
+      - cd {{.BACKEND_DIR}} && ginkgo -r -tags=integration ./tests/integration
+      - task: test:services:stop
+
+  test:e2e:
+    desc: "Run end-to-end tests"
+    cmds:
+      - task: build:frontend
+      - task: test:services:start  
+      - cd {{.FRONTEND_DIR}} && npm run test:e2e
+      - task: test:services:stop
+
+  test:contract:
+    desc: "Run API contract tests"
+    cmds:
+      - cd {{.BACKEND_DIR}} && ginkgo -r -tags=contract ./tests/contract
+
+  test:services:start:
+    desc: "Start test services (database, relay, etc.)"
+    cmds:
+      - docker-compose -f docker-compose.test.yml up -d
+      - sleep 3
+
+  test:services:stop:
+    desc: "Stop test services"
+    cmds:
+      - docker-compose -f docker-compose.test.yml down
+
+  test:setup:
+    desc: "Set up testing environment and generate mocks"
+    cmds:
+      - task: mocks:generate
+      - echo "Test database utilities available in tests/setup/db_setup.go"
+
+  # === Mock Generation ===
+  mocks:generate:
+    desc: "Generate mocks for testing"
+    cmds:
+      - task: mocks:backend
+      - task: mocks:frontend
+
+  mocks:backend:
+    desc: "Generate Go mocks using mockgen"
+    cmds:
+      - cd {{.BACKEND_DIR}} && find . -name "*.go" -type f -exec grep -l "//go:generate mockgen" {} \; | xargs -I {} dirname {} | sort -u | xargs -I {} sh -c 'cd {} && go generate'
+
+  mocks:frontend:
+    desc: "Generate frontend mocks and test utilities"
+    cmds:
+      - cd {{.FRONTEND_DIR}} && npm run generate:mocks
+
+  # === Build Commands ===
+  build:
+    desc: "Build all applications for production"
+    cmds:
+      - task: build:frontend
+      - task: build:backend
+
+  build:frontend:
+    desc: "Build React frontend for production"
+    deps: [types:generate, test:unit:frontend]
+    cmds:
+      - cd {{.FRONTEND_DIR}} && npm run build
+
+  build:backend:
+    desc: "Build Go backend binary"
+    deps: [test:unit:backend]
+    cmds:
+      - cd {{.BACKEND_DIR}} && go build -o bin/api ./cmd/api
+
+  build:docker:
+    desc: "Build Docker images for production"
+    cmds:
+      - docker build -t wavlake/frontend ./{{.FRONTEND_DIR}}
+      - docker build -t wavlake/backend ./{{.BACKEND_DIR}}
+
+  # === Type Generation ===
+  types:generate:
+    desc: "Generate TypeScript interfaces from Go structs"
+    cmds:
+      - task: types:clean
+      - task: types:go-to-ts
+      - task: types:nostr
+      - "echo 'Types generated successfully'"
+
+  types:clean:
+    desc: "Clean generated type files"
+    cmds:
+      - rm -rf {{.SHARED_TYPES_DIR}}/api/*.ts
+      - mkdir -p {{.SHARED_TYPES_DIR}}/api
+
+  types:go-to-ts:
+    desc: "Generate TypeScript interfaces from Go structs"
+    cmds:
+      - cd {{.BACKEND_DIR}} && go run ./tools/typegen
+
+  types:nostr:
+    desc: "Generate/update Nostr event type definitions"
+    cmds:
+      - "echo 'Nostr event types are manually maintained in {{.SHARED_TYPES_DIR}}/nostr/'"
+
+  types:watch:
+    desc: "Watch Go files and regenerate TypeScript types on changes"
+    cmds:
+      - |
+        while true; do
+          find {{.BACKEND_DIR}} -name "*.go" -newer {{.SHARED_TYPES_DIR}}/api/.timestamp 2>/dev/null | head -1 | grep -q . && {
+            echo 'Go files changed, regenerating types...'
+            task types:generate
+            touch {{.SHARED_TYPES_DIR}}/api/.timestamp
+          }
+          sleep 2
+        done
+
+  # === Quality & Coverage ===
+  coverage:
+    desc: "Generate and view test coverage reports"
+    cmds:
+      - task: coverage:backend
+      - task: coverage:frontend
+
+  coverage:backend:
+    desc: "Generate Go test coverage report"
+    cmds:
+      - "cd {{.BACKEND_DIR}} && ginkgo -r --cover --coverprofile=coverage.out"
+      - "cd {{.BACKEND_DIR}} && go tool cover -html=coverage.out -o coverage.html"
+      - "echo 'Backend coverage report: {{.BACKEND_DIR}}/coverage.html'"
+
+  coverage:frontend:
+    desc: "Generate frontend test coverage report"
+    cmds:
+      - "cd {{.FRONTEND_DIR}} && npm run test:coverage"
+      - "echo 'Frontend coverage report: {{.FRONTEND_DIR}}/coverage/lcov-report/index.html'"
+
+
+  quality:check:
+    desc: "Run comprehensive quality checks"
+    cmds:
+      - task: lint
+      - task: test:unit
+      - task: coverage
+      - "echo 'Quality checks complete'"
+
+  # === Linting & Formatting ===
+  lint:
+    desc: "Run linters for all applications"
+    cmds:
+      - task: lint:frontend
+      - task: lint:backend
+
+  lint:frontend:
+    desc: "Run frontend linting"
+    cmds:
+      - cd {{.FRONTEND_DIR}} && npm run lint
+
+  lint:backend:
+    desc: "Run Go linting"
+    cmds:
+      - cd {{.BACKEND_DIR}} && golangci-lint run
+
+  format:
+    desc: "Format code for all applications"
+    cmds:
+      - task: format:frontend
+      - task: format:backend
+
+  format:frontend:
+    desc: "Format frontend code"
+    cmds:
+      - cd {{.FRONTEND_DIR}} && npm run format
+
+  format:backend:
+    desc: "Format Go code"
+    cmds:
+      - cd {{.BACKEND_DIR}} && gofmt -w .
+      - cd {{.BACKEND_DIR}} && goimports -w .
+
+  # === Database & Firebase ===
+  firebase:emulators:
+    desc: "Start Firebase emulators for local development"
+    cmds:
+      - firebase emulators:start --only firestore,storage,auth
+
+  db:seed:
+    desc: "Seed database with test data"
+    cmds:
+      - cd {{.BACKEND_DIR}} && go run ./cmd/seed
+
+  # === Deployment ===
+  deploy:frontend:
+    desc: "Deploy frontend to Vercel"
+    deps: [build:frontend]
+    cmds:
+      - cd {{.FRONTEND_DIR}} && vercel --prod
+
+  deploy:backend:
+    desc: "Deploy backend to GCP Cloud Run"  
+    deps: [build:docker]
+    cmds:
+      - gcloud run deploy wavlake-api --image wavlake/backend --platform managed
+
+  deploy:
+    desc: "Deploy all applications"
+    cmds:
+      - task: deploy:backend
+      - task: deploy:frontend
+
+  # === Utilities ===
+  clean:
+    desc: "Clean build artifacts and dependencies"
+    cmds:
+      - rm -rf {{.FRONTEND_DIR}}/dist
+      - rm -rf {{.FRONTEND_DIR}}/node_modules
+      - rm -rf {{.BACKEND_DIR}}/bin
+      - cd {{.BACKEND_DIR}} && go clean -modcache
+
+  logs:backend:
+    desc: "View backend logs"
+    cmds:
+      - gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=wavlake-api" --limit 50
+
+  logs:relay:
+    desc: "View local relay logs"
+    cmds:
+      - tail -f {{.DEV_RELAY_DIR}}/relay.log
+
+  # === Health Checks ===
+  health:
+    desc: "Check health of all services"
+    cmds:
+      - curl -f http://localhost:3000/health || echo "Frontend not responding"
+      - curl -f http://localhost:8080/health || echo "Backend not responding"
+      - curl -f http://localhost:7777 || echo "Relay not responding"
+
+  # === Documentation ===
+  docs:
+    desc: "Generate API documentation"
+    cmds:
+      - cd {{.BACKEND_DIR}} && swag init -g ./cmd/api/main.go
+      - "echo 'API docs generated at {{.BACKEND_DIR}}/docs/'"
+
+  # === Git Hooks ===
+  hooks:install:
+    desc: "Install git hooks for the monorepo"
+    cmds:
+      - cp tools/scripts/pre-commit.sh .git/hooks/pre-commit
+      - chmod +x .git/hooks/pre-commit
+      - "echo 'Git hooks installed'"
+
+  # === Default Task ===
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - task --list

@@ -155,6 +155,16 @@ tasks:
     cmds:
       - cd {{.BACKEND_DIR}} && go run ./cmd/api
 
+  dev:backend:local:
+    desc: "Start Go backend with local development environment"
+    cmds:
+      - cd {{.BACKEND_DIR}} && DEVELOPMENT=true SKIP_AUTH=true MOCK_STORAGE=true MOCK_STORAGE_PATH=./dev-storage FILE_SERVER_URL=http://localhost:8081 go run ./cmd/api
+
+  dev:fileserver:
+    desc: "Start local file server for mock storage"
+    cmds:
+      - cd {{.BACKEND_DIR}} && STORAGE_PATH=./dev-storage PORT=8081 go run ./cmd/fileserver
+
   dev:relay:
     desc: "Start local nostr relay using nak"
     cmds:

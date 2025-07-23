@@ -82,11 +82,13 @@ task build           # Production builds (requires tests to pass)
 - Mock generation with `//go:generate mockgen` directives
 - Test services: Firebase emulators, test database, local relay
 - Integration tests tagged with `// +build integration`
+- **IMPORTANT**: Run backend test suite after any backend changes: `task test:unit:backend`
 
 **Frontend (Vitest + React Testing Library)**:
 - Component tests with user event simulation
 - MSW for API mocking
 - Playwright for E2E testing
+- **IMPORTANT**: Run frontend test suite after any frontend changes: `task test:unit:frontend` (suite to be implemented)
 
 **Test Services (Docker Compose)**:
 - Firebase emulators (Auth, Firestore, Storage) on ports 9099, 8080, 9199
@@ -125,11 +127,33 @@ Install with: `task hooks:install`
 2. Run `task types:generate` to update TypeScript interfaces
 3. Frontend automatically gets type safety for new endpoints
 4. Write tests first, then implement handlers
+5. **Always run tests after changes**: `task test:unit:backend` for backend, `task test:unit:frontend` for frontend
 
 ### Working with Shared Types
 - **Import**: `import { SomeType } from '@shared'` in frontend
 - **Categories**: `api/` (generated), `nostr/` (manual), `common/` (utilities)
 - **Regeneration**: Automatic on backend changes, manual with `task types:generate`
+
+### Testing Requirements
+**Critical**: Always run appropriate test suites after making changes:
+
+**Backend Changes**:
+```bash
+task test:unit:backend        # Unit tests with coverage
+task test:integration         # Integration tests (if applicable)
+task deploy:staging:test      # Test against staging environment
+```
+
+**Frontend Changes**:
+```bash
+task test:unit:frontend       # Frontend test suite (to be implemented)
+task test:e2e                 # End-to-end Playwright tests
+```
+
+**Full Validation**:
+```bash
+task quality:check            # Comprehensive: lint + test + coverage + build
+```
 
 ## Environment Requirements
 

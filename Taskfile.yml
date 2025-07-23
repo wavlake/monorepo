@@ -467,9 +467,35 @@ tasks:
             go test -v ./tests/integration -run TestStagingEnvironmentSuite -timeout 5m
         else
           echo "❌ Staging heartbeat failed - service may not be ready"
-          echo "Try: curl -v $STAGING_URL/heartbeat"
-          exit 1
-        fi
+
+  # === Cloud Build Trigger Management ===
+  trigger:create:
+    desc: "Create Cloud Build trigger for staging auto-deployment"
+    cmds:
+      - |
+        echo "🔗 Creating Cloud Build trigger..."
+        echo "📋 Note: Repository must be connected first via GCP Console:"
+        echo "   https://console.cloud.google.com/cloud-build/triggers"
+        echo ""
+        /Users/joshremaley/google-cloud-sdk/bin/gcloud builds triggers create github \
+          --repo-name=monorepo \
+          --repo-owner=wavlake \
+          --branch-pattern="^(main|develop)$" \
+          --build-config=apps/backend/cloudbuild-staging.yaml \
+          --name=staging-auto-deploy \
+          --description="Auto-deploy backend to staging on main/develop branch changes" \
+          --included-files="apps/backend/**" \
+          --project=wavlake-alpha
+
+  trigger:list:
+    desc: "List Cloud Build triggers"
+    cmds:
+      - /Users/joshremaley/google-cloud-sdk/bin/gcloud builds triggers list --project=wavlake-alpha
+
+  trigger:delete:
+    desc: "Delete staging Cloud Build trigger"
+    cmds:
+      - /Users/joshremaley/google-cloud-sdk/bin/gcloud builds triggers delete staging-auto-deploy --project=wavlake-alpha
 
   deploy:
     desc: "Deploy all applications"

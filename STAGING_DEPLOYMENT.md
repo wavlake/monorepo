@@ -8,14 +8,24 @@ The staging environment (`api-staging`) is deployed to Google Cloud Run using Cl
 
 ![Staging Deploy](https://github.com/wavlake/monorepo/actions/workflows/staging-deploy.yml/badge.svg)
 
-## Automatic CI/CD
+## Automatic Deployment Options
 
-**GitHub Actions automatically deploy to staging** when:
-- Code is pushed to `main` or `develop` branch
+### Option A: Cloud Build Triggers (Recommended)
+
+**Cloud Build triggers automatically deploy to staging** when:
+- Code is pushed to `main` or `develop` branch  
 - Changes are made to `apps/backend/` directory
-- Pull requests are created targeting `main` branch
+- Native GCP integration with no additional authentication required
 
-See `.github/STAGING_CI.md` for complete CI/CD setup documentation.
+Setup: `task trigger:create` or see `CLOUD_BUILD_TRIGGERS.md` for detailed setup.
+
+### Option B: GitHub Actions
+
+**GitHub Actions can also deploy to staging** when configured:
+- Requires GCP service account setup and GitHub secrets
+- See `.github/STAGING_CI.md` for complete CI/CD setup documentation
+
+**Note**: Choose one deployment method to avoid conflicts. Cloud Build triggers are recommended for simpler setup and native GCP integration.
 
 ## Infrastructure Files
 

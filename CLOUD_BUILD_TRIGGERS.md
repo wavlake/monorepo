@@ -206,12 +206,12 @@ gcloud projects get-iam-policy wavlake-alpha
 
 ## Migration from GitHub Actions
 
-If migrating from GitHub Actions deployment:
+Migration from GitHub Actions deployment is **complete**:
 
-1. **Create the trigger**: `task trigger:create`
-2. **Test the trigger**: Push a backend change and verify deployment
-3. **Disable GitHub Actions**: Comment out or delete `.github/workflows/staging-deploy.yml`
-4. **Update documentation**: Reference this trigger-based approach
+1. ✅ **Created the trigger**: `staging-auto-deploy` trigger is active
+2. ✅ **Tested the trigger**: Confirmed working deployment on backend changes
+3. ✅ **Removed GitHub Actions**: Deleted `.github/workflows/staging-deploy.yml`
+4. ✅ **Updated documentation**: All docs now reference trigger-based approach
 
 ### Hybrid Approach (Optional)
 

@@ -197,7 +197,28 @@ DEFAULT_RELAY_URLS=ws://localhost:7777,wss://relay.wavlake.com
 - E2E: 90%+ user journey coverage
 
 ## Deployment Pipeline
-- Frontend: `task deploy:frontend` → Vercel
-- Backend: `task deploy:backend` → GCP Cloud Run
-- Full: `task deploy` (both applications)
-- Requires: Tests passing, types current, linting clean
+
+### Automatic Deployment (GCP Cloud Build Triggers)
+**Backend Staging**: Automatic deployment via GCP Cloud Build trigger
+- **Trigger**: Pushes to `main` or `develop` branches with changes in `apps/backend/**`
+- **Process**: `cloudbuild-staging.yaml` → Docker build → Cloud Run deployment → Integration tests  
+- **Staging URL**: Auto-generated, accessible via `task deploy:staging:test`
+- **Management**: `task trigger:list`, `task trigger:create`, `task trigger:delete`
+
+### Manual Deployment Commands
+- **Frontend**: `task deploy:frontend` → Vercel
+- **Backend**: `task deploy:backend` → GCP Cloud Run  
+- **Staging**: `task deploy:staging` → Manual staging deployment with tests
+- **Full**: `task deploy` → Both applications
+
+### CI/CD Features
+- **Unit Tests**: Run automatically before deployment
+- **Integration Tests**: Execute against deployed staging environment
+- **Smoke Tests**: Basic health checks post-deployment
+- **Build Caching**: Docker layer caching for faster builds
+- **Environment Variables**: Automatic staging environment configuration
+
+### Manual Testing
+- GitHub Actions workflow for manual staging tests: `workflow_dispatch`
+- Test suites: `all`, `staging-environment`, `staging-api`, `health-check`
+- Custom staging URL testing support

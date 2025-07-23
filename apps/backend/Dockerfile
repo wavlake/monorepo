@@ -10,7 +10,6 @@ RUN go mod download
 COPY cmd/ cmd/
 COPY internal/ internal/
 COPY pkg/ pkg/
-COPY tools/ tools/
 COPY tests/ tests/
 
 # Build both API server and file server

@@ -6,26 +6,20 @@ This guide covers the staging deployment setup for the Wavlake API migration.
 
 The staging environment (`api-staging`) is deployed to Google Cloud Run using Cloud Build for automated building and deployment.
 
-![Staging Deploy](https://github.com/wavlake/monorepo/actions/workflows/staging-deploy.yml/badge.svg)
-
-## Automatic Deployment Options
-
-### Option A: Cloud Build Triggers (Recommended)
+## Automatic Deployment
 
 **Cloud Build triggers automatically deploy to staging** when:
 - Code is pushed to `main` or `develop` branch  
 - Changes are made to `apps/backend/` directory
 - Native GCP integration with no additional authentication required
 
-Setup: `task trigger:create` or see `CLOUD_BUILD_TRIGGERS.md` for detailed setup.
+**Current Setup**: Cloud Build trigger `staging-auto-deploy` is active and configured via `task trigger:create`. See `CLOUD_BUILD_TRIGGERS.md` for detailed configuration and management.
 
-### Option B: GitHub Actions
-
-**GitHub Actions can also deploy to staging** when configured:
-- Requires GCP service account setup and GitHub secrets
-- See `.github/STAGING_CI.md` for complete CI/CD setup documentation
-
-**Note**: Choose one deployment method to avoid conflicts. Cloud Build triggers are recommended for simpler setup and native GCP integration.
+**Benefits**:
+- Native GCP integration with no external dependencies
+- Direct repository monitoring and instant deployment
+- Built-in build caching and optimized performance
+- Integrated monitoring and logging through GCP Console
 
 ## Infrastructure Files
 
@@ -191,7 +185,7 @@ This staging deployment is part of **Phase 4: Validation & Cutover** of the API 
 
 ## Next Steps
 
-1. **Set up CI/CD**: Connect GitHub repository to Cloud Build triggers
+1. ✅ **CI/CD Setup**: Cloud Build trigger `staging-auto-deploy` is active and working
 2. **Production Deployment**: Use similar process for production environment
 3. **Monitoring**: Set up Cloud Monitoring and alerting
 4. **Load Testing**: Perform load testing against staging environment

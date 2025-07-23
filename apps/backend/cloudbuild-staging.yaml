@@ -45,20 +45,17 @@ steps:
         curl -f "$${SERVICE_URL}/heartbeat" || exit 1
         echo "Staging smoke test passed!"
 
-  # Step 5: Run integration tests
-  - name: 'gcr.io/cloud-builders/go'
-    env:
-      - 'STAGING_URL=$(gcloud run services describe api-staging --platform managed --region ${_REGION} --format="value(status.url)")'
-      - 'GCP_PROJECT=$PROJECT_ID'
+  # Step 5: Run integration tests against deployed service
+  - name: 'golang:1.24-alpine'
+    entrypoint: 'sh'
     args:
-      - 'test'
-      - '-v'
-      - './tests/integration'
-      - '-run'
-      - 'TestStaging.*Suite'
-      - '-timeout'
-      - '5m'
-    dir: 'apps/backend'
+      - '-c'
+      - |
+        cd apps/backend
+        export STAGING_URL="https://api-staging-cgi4gylh7q-uc.a.run.app"
+        export GCP_PROJECT="$PROJECT_ID"
+        echo "Running integration tests against: $$STAGING_URL"
+        go test -v ./tests/integration -run "TestStaging.*Suite" -timeout 5m
 
 # Substitution variables with defaults
 substitutions:

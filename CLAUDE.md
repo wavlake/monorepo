@@ -15,6 +15,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **This documentation serves as the primary reference for understanding the codebase and must remain current and accurate.**
 
+## ⚠️ API Migration Status
+
+**IMPORTANT**: The monorepo backend is a simplified implementation compared to the original `/dev/wavlake/api`. See `apps/backend/MIGRATION.md` for a comprehensive analysis of missing functionality including:
+
+- **Advanced Audio Processing**: Multi-format compression, custom bitrates, quality controls
+- **Track Processing Pipeline**: Webhook integration, status monitoring, Cloud Function automation  
+- **File Server Operations**: Upload/download endpoints, mock storage for development
+- **Enhanced Legacy Endpoints**: Artist/album track relationships, advanced PostgreSQL features
+
+**Impact**: Core functionality works, but advanced features and development workflow improvements are missing. Refer to MIGRATION.md for implementation roadmap and priorities.
+
 ## Project Overview
 
 This is a TDD-focused monorepo for Wavlake's decentralized music platform, featuring:

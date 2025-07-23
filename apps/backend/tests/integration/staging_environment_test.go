@@ -136,7 +136,7 @@ func (suite *StagingEnvironmentTestSuite) TestStagingAPIEndpoints() {
 		{
 			name:           "Track endpoint",
 			path:           "/v1/tracks/test-id",
-			expectedStatus: 200,
+			expectedStatus: 404,
 			description:    "Should return track not found JSON response",
 		},
 	}

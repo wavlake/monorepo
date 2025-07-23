@@ -42,11 +42,7 @@ func SetAuthContext(c *gin.Context, firebaseUID, nostrPubkey string) {
 }
 
 // MockController creates a new gomock controller for testing
-func MockController(t interface {
-	Helper()
-	Errorf(format string, args ...interface{})
-	FailNow()
-}) *gomock.Controller {
+func MockController(t gomock.TestReporter) *gomock.Controller {
 	return gomock.NewController(t)
 }
 

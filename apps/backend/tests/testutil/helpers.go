@@ -64,3 +64,8 @@ func AssertJSONResponse(w *httptest.ResponseRecorder, expectedStatus int) map[st
 func ContextWithCancel() (context.Context, context.CancelFunc) {
 	return context.WithCancel(context.Background())
 }
+
+// ParseJSONResponse parses JSON response from httptest.ResponseRecorder
+func ParseJSONResponse(body *bytes.Buffer, target interface{}) error {
+	return json.Unmarshal(body.Bytes(), target)
+}

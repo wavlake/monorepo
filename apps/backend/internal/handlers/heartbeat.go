@@ -3,12 +3,10 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 )
 
 type HeartbeatResponse struct {
-	Status    string `json:"status"`
-	CommitSHA string `json:"commit_sha"`
+	Status string `json:"status"`
 }
 
 func Heartbeat(w http.ResponseWriter, r *http.Request) {
@@ -17,14 +15,8 @@ func Heartbeat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commitSHA := os.Getenv("COMMIT_SHA")
-	if commitSHA == "" {
-		commitSHA = "unknown"
-	}
-
 	response := HeartbeatResponse{
-		Status:    "ok",
-		CommitSHA: commitSHA,
+		Status: "ok",
 	}
 
 	w.Header().Set("Content-Type", "application/json")

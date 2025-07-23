@@ -2,6 +2,19 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ⚠️ IMPORTANT: Maintaining This Documentation
+
+**Any architectural changes, dependency updates, or significant alterations made to this repository MUST be reflected in this CLAUDE.md file.** This includes:
+
+- New tools, libraries, or dependencies added to the project
+- Changes to build processes, testing workflows, or development commands
+- Modifications to the monorepo structure or file organization
+- Updates to deployment processes or environment configurations
+- Changes to type generation systems, authentication flows, or core APIs
+- New development patterns, testing approaches, or quality gates
+
+**This documentation serves as the primary reference for understanding the codebase and must remain current and accurate.**
+
 ## Project Overview
 
 This is a TDD-focused monorepo for Wavlake's decentralized music platform, featuring:
@@ -66,16 +79,22 @@ task build           # Production builds (requires tests to pass)
 ### Type Generation System
 **Critical for maintaining type safety between Go and TypeScript:**
 
-1. **Source**: Go structs in `apps/backend/internal/{models,handlers,types}/`
-2. **Tool**: Custom Go tool at `apps/backend/tools/typegen/main.go`
+1. **Source**: Go structs in `apps/backend/internal/{models,handlers}/`
+2. **Tool**: Tygo library (github.com/gzuidhof/tygo) configured via `apps/backend/tygo.yaml`
 3. **Output**: TypeScript interfaces in `packages/shared-types/api/`
 4. **Usage**: Frontend imports from `@shared` alias
 
 **Process**:
-- Analyzes Go structs and JSON tags
-- Generates categorized TypeScript files (models, requests, responses)
-- Handles custom type mappings (time.Time → string, etc.)
+- Analyzes Go structs and JSON tags using tygo
+- Generates separate files: `models.ts` (data structures) and `handlers.ts` (requests/responses)
+- Handles custom type mappings (time.Time → string, uuid.UUID → string, etc.)
+- Auto-generates `index.ts` that re-exports all types
 - Build process ensures types are current before deployment
+
+**Configuration**: Types are generated based on tygo.yaml:
+- Models package: `internal/models` → `api/models.ts`
+- Handlers package: `internal/handlers` → `api/handlers.ts` (filters for *Request and *Response structs)
+- Cross-references appear as `any /* models.TypeName */` but work correctly when imported
 
 ### Testing Architecture
 **Backend (Go + Ginkgo)**:

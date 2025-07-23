@@ -1,1 +1,20 @@
 node_modules
+
+# Build artifacts
+apps/backend/api
+apps/backend/fileserver
+apps/backend/bin/
+*.exe
+
+# Go build cache
+apps/backend/coverage.out
+apps/backend/coverage.html
+
+# Development files
+apps/backend/dev-storage/
+.env.local
+.DS_Store
+
+# IDE files
+.vscode/
+.idea/

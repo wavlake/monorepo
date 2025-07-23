@@ -374,3 +374,324 @@ func (mr *MockStorageServiceInterfaceMockRecorder) UploadObject(ctx, objectName,
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadObject", reflect.TypeOf((*MockStorageServiceInterface)(nil).UploadObject), ctx, objectName, data, contentType)
 }
+
+// MockNostrTrackServiceInterface is a mock of NostrTrackServiceInterface interface.
+type MockNostrTrackServiceInterface struct {
+	ctrl     *gomock.Controller
+	recorder *MockNostrTrackServiceInterfaceMockRecorder
+}
+
+// MockNostrTrackServiceInterfaceMockRecorder is the mock recorder for MockNostrTrackServiceInterface.
+type MockNostrTrackServiceInterfaceMockRecorder struct {
+	mock *MockNostrTrackServiceInterface
+}
+
+// NewMockNostrTrackServiceInterface creates a new mock instance.
+func NewMockNostrTrackServiceInterface(ctrl *gomock.Controller) *MockNostrTrackServiceInterface {
+	mock := &MockNostrTrackServiceInterface{ctrl: ctrl}
+	mock.recorder = &MockNostrTrackServiceInterfaceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockNostrTrackServiceInterface) EXPECT() *MockNostrTrackServiceInterfaceMockRecorder {
+	return m.recorder
+}
+
+// AddCompressionVersion mocks base method.
+func (m *MockNostrTrackServiceInterface) AddCompressionVersion(ctx context.Context, trackID string, version models.CompressionVersion) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddCompressionVersion", ctx, trackID, version)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddCompressionVersion indicates an expected call of AddCompressionVersion.
+func (mr *MockNostrTrackServiceInterfaceMockRecorder) AddCompressionVersion(ctx, trackID, version interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCompressionVersion", reflect.TypeOf((*MockNostrTrackServiceInterface)(nil).AddCompressionVersion), ctx, trackID, version)
+}
+
+// CreateTrack mocks base method.
+func (m *MockNostrTrackServiceInterface) CreateTrack(ctx context.Context, pubkey, firebaseUID, extension string) (*models.NostrTrack, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateTrack", ctx, pubkey, firebaseUID, extension)
+	ret0, _ := ret[0].(*models.NostrTrack)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateTrack indicates an expected call of CreateTrack.
+func (mr *MockNostrTrackServiceInterfaceMockRecorder) CreateTrack(ctx, pubkey, firebaseUID, extension interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTrack", reflect.TypeOf((*MockNostrTrackServiceInterface)(nil).CreateTrack), ctx, pubkey, firebaseUID, extension)
+}
+
+// DeleteTrack mocks base method.
+func (m *MockNostrTrackServiceInterface) DeleteTrack(ctx context.Context, trackID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteTrack", ctx, trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteTrack indicates an expected call of DeleteTrack.
+func (mr *MockNostrTrackServiceInterfaceMockRecorder) DeleteTrack(ctx, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTrack", reflect.TypeOf((*MockNostrTrackServiceInterface)(nil).DeleteTrack), ctx, trackID)
+}
+
+// GetTrack mocks base method.
+func (m *MockNostrTrackServiceInterface) GetTrack(ctx context.Context, trackID string) (*models.NostrTrack, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTrack", ctx, trackID)
+	ret0, _ := ret[0].(*models.NostrTrack)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTrack indicates an expected call of GetTrack.
+func (mr *MockNostrTrackServiceInterfaceMockRecorder) GetTrack(ctx, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTrack", reflect.TypeOf((*MockNostrTrackServiceInterface)(nil).GetTrack), ctx, trackID)
+}
+
+// GetTracksByFirebaseUID mocks base method.
+func (m *MockNostrTrackServiceInterface) GetTracksByFirebaseUID(ctx context.Context, firebaseUID string) ([]*models.NostrTrack, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTracksByFirebaseUID", ctx, firebaseUID)
+	ret0, _ := ret[0].([]*models.NostrTrack)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTracksByFirebaseUID indicates an expected call of GetTracksByFirebaseUID.
+func (mr *MockNostrTrackServiceInterfaceMockRecorder) GetTracksByFirebaseUID(ctx, firebaseUID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTracksByFirebaseUID", reflect.TypeOf((*MockNostrTrackServiceInterface)(nil).GetTracksByFirebaseUID), ctx, firebaseUID)
+}
+
+// GetTracksByPubkey mocks base method.
+func (m *MockNostrTrackServiceInterface) GetTracksByPubkey(ctx context.Context, pubkey string) ([]*models.NostrTrack, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTracksByPubkey", ctx, pubkey)
+	ret0, _ := ret[0].([]*models.NostrTrack)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTracksByPubkey indicates an expected call of GetTracksByPubkey.
+func (mr *MockNostrTrackServiceInterfaceMockRecorder) GetTracksByPubkey(ctx, pubkey interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTracksByPubkey", reflect.TypeOf((*MockNostrTrackServiceInterface)(nil).GetTracksByPubkey), ctx, pubkey)
+}
+
+// HardDeleteTrack mocks base method.
+func (m *MockNostrTrackServiceInterface) HardDeleteTrack(ctx context.Context, trackID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HardDeleteTrack", ctx, trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// HardDeleteTrack indicates an expected call of HardDeleteTrack.
+func (mr *MockNostrTrackServiceInterfaceMockRecorder) HardDeleteTrack(ctx, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HardDeleteTrack", reflect.TypeOf((*MockNostrTrackServiceInterface)(nil).HardDeleteTrack), ctx, trackID)
+}
+
+// MarkTrackAsCompressed mocks base method.
+func (m *MockNostrTrackServiceInterface) MarkTrackAsCompressed(ctx context.Context, trackID, compressedURL string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MarkTrackAsCompressed", ctx, trackID, compressedURL)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MarkTrackAsCompressed indicates an expected call of MarkTrackAsCompressed.
+func (mr *MockNostrTrackServiceInterfaceMockRecorder) MarkTrackAsCompressed(ctx, trackID, compressedURL interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MarkTrackAsCompressed", reflect.TypeOf((*MockNostrTrackServiceInterface)(nil).MarkTrackAsCompressed), ctx, trackID, compressedURL)
+}
+
+// MarkTrackAsProcessed mocks base method.
+func (m *MockNostrTrackServiceInterface) MarkTrackAsProcessed(ctx context.Context, trackID string, size int64, duration int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MarkTrackAsProcessed", ctx, trackID, size, duration)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MarkTrackAsProcessed indicates an expected call of MarkTrackAsProcessed.
+func (mr *MockNostrTrackServiceInterfaceMockRecorder) MarkTrackAsProcessed(ctx, trackID, size, duration interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MarkTrackAsProcessed", reflect.TypeOf((*MockNostrTrackServiceInterface)(nil).MarkTrackAsProcessed), ctx, trackID, size, duration)
+}
+
+// SetPendingCompression mocks base method.
+func (m *MockNostrTrackServiceInterface) SetPendingCompression(ctx context.Context, trackID string, pending bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetPendingCompression", ctx, trackID, pending)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetPendingCompression indicates an expected call of SetPendingCompression.
+func (mr *MockNostrTrackServiceInterfaceMockRecorder) SetPendingCompression(ctx, trackID, pending interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetPendingCompression", reflect.TypeOf((*MockNostrTrackServiceInterface)(nil).SetPendingCompression), ctx, trackID, pending)
+}
+
+// UpdateCompressionVisibility mocks base method.
+func (m *MockNostrTrackServiceInterface) UpdateCompressionVisibility(ctx context.Context, trackID string, updates []models.VersionUpdate) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateCompressionVisibility", ctx, trackID, updates)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateCompressionVisibility indicates an expected call of UpdateCompressionVisibility.
+func (mr *MockNostrTrackServiceInterfaceMockRecorder) UpdateCompressionVisibility(ctx, trackID, updates interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCompressionVisibility", reflect.TypeOf((*MockNostrTrackServiceInterface)(nil).UpdateCompressionVisibility), ctx, trackID, updates)
+}
+
+// UpdateTrack mocks base method.
+func (m *MockNostrTrackServiceInterface) UpdateTrack(ctx context.Context, trackID string, updates map[string]interface{}) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateTrack", ctx, trackID, updates)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateTrack indicates an expected call of UpdateTrack.
+func (mr *MockNostrTrackServiceInterfaceMockRecorder) UpdateTrack(ctx, trackID, updates interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTrack", reflect.TypeOf((*MockNostrTrackServiceInterface)(nil).UpdateTrack), ctx, trackID, updates)
+}
+
+// MockProcessingServiceInterface is a mock of ProcessingServiceInterface interface.
+type MockProcessingServiceInterface struct {
+	ctrl     *gomock.Controller
+	recorder *MockProcessingServiceInterfaceMockRecorder
+}
+
+// MockProcessingServiceInterfaceMockRecorder is the mock recorder for MockProcessingServiceInterface.
+type MockProcessingServiceInterfaceMockRecorder struct {
+	mock *MockProcessingServiceInterface
+}
+
+// NewMockProcessingServiceInterface creates a new mock instance.
+func NewMockProcessingServiceInterface(ctrl *gomock.Controller) *MockProcessingServiceInterface {
+	mock := &MockProcessingServiceInterface{ctrl: ctrl}
+	mock.recorder = &MockProcessingServiceInterfaceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockProcessingServiceInterface) EXPECT() *MockProcessingServiceInterfaceMockRecorder {
+	return m.recorder
+}
+
+// ProcessCompression mocks base method.
+func (m *MockProcessingServiceInterface) ProcessCompression(ctx context.Context, trackID string, option models.CompressionOption) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProcessCompression", ctx, trackID, option)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ProcessCompression indicates an expected call of ProcessCompression.
+func (mr *MockProcessingServiceInterfaceMockRecorder) ProcessCompression(ctx, trackID, option interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProcessCompression", reflect.TypeOf((*MockProcessingServiceInterface)(nil).ProcessCompression), ctx, trackID, option)
+}
+
+// ProcessCompressionAsync mocks base method.
+func (m *MockProcessingServiceInterface) ProcessCompressionAsync(ctx context.Context, trackID string, option models.CompressionOption) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ProcessCompressionAsync", ctx, trackID, option)
+}
+
+// ProcessCompressionAsync indicates an expected call of ProcessCompressionAsync.
+func (mr *MockProcessingServiceInterfaceMockRecorder) ProcessCompressionAsync(ctx, trackID, option interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProcessCompressionAsync", reflect.TypeOf((*MockProcessingServiceInterface)(nil).ProcessCompressionAsync), ctx, trackID, option)
+}
+
+// ProcessTrack mocks base method.
+func (m *MockProcessingServiceInterface) ProcessTrack(ctx context.Context, trackID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProcessTrack", ctx, trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ProcessTrack indicates an expected call of ProcessTrack.
+func (mr *MockProcessingServiceInterfaceMockRecorder) ProcessTrack(ctx, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProcessTrack", reflect.TypeOf((*MockProcessingServiceInterface)(nil).ProcessTrack), ctx, trackID)
+}
+
+// ProcessTrackAsync mocks base method.
+func (m *MockProcessingServiceInterface) ProcessTrackAsync(ctx context.Context, trackID string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ProcessTrackAsync", ctx, trackID)
+}
+
+// ProcessTrackAsync indicates an expected call of ProcessTrackAsync.
+func (mr *MockProcessingServiceInterfaceMockRecorder) ProcessTrackAsync(ctx, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProcessTrackAsync", reflect.TypeOf((*MockProcessingServiceInterface)(nil).ProcessTrackAsync), ctx, trackID)
+}
+
+// RequestCompressionVersions mocks base method.
+func (m *MockProcessingServiceInterface) RequestCompressionVersions(ctx context.Context, trackID string, compressionOptions []models.CompressionOption) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RequestCompressionVersions", ctx, trackID, compressionOptions)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RequestCompressionVersions indicates an expected call of RequestCompressionVersions.
+func (mr *MockProcessingServiceInterfaceMockRecorder) RequestCompressionVersions(ctx, trackID, compressionOptions interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestCompressionVersions", reflect.TypeOf((*MockProcessingServiceInterface)(nil).RequestCompressionVersions), ctx, trackID, compressionOptions)
+}
+
+// MockAudioProcessorInterface is a mock of AudioProcessorInterface interface.
+type MockAudioProcessorInterface struct {
+	ctrl     *gomock.Controller
+	recorder *MockAudioProcessorInterfaceMockRecorder
+}
+
+// MockAudioProcessorInterfaceMockRecorder is the mock recorder for MockAudioProcessorInterface.
+type MockAudioProcessorInterfaceMockRecorder struct {
+	mock *MockAudioProcessorInterface
+}
+
+// NewMockAudioProcessorInterface creates a new mock instance.
+func NewMockAudioProcessorInterface(ctrl *gomock.Controller) *MockAudioProcessorInterface {
+	mock := &MockAudioProcessorInterface{ctrl: ctrl}
+	mock.recorder = &MockAudioProcessorInterfaceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockAudioProcessorInterface) EXPECT() *MockAudioProcessorInterfaceMockRecorder {
+	return m.recorder
+}
+
+// IsFormatSupported mocks base method.
+func (m *MockAudioProcessorInterface) IsFormatSupported(extension string) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsFormatSupported", extension)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsFormatSupported indicates an expected call of IsFormatSupported.
+func (mr *MockAudioProcessorInterfaceMockRecorder) IsFormatSupported(extension interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsFormatSupported", reflect.TypeOf((*MockAudioProcessorInterface)(nil).IsFormatSupported), extension)
+}

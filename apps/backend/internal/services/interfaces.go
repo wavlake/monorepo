@@ -42,7 +42,39 @@ type StorageServiceInterface interface {
 	Close() error
 }
 
+// NostrTrackServiceInterface defines the interface for Nostr track operations
+type NostrTrackServiceInterface interface {
+	CreateTrack(ctx context.Context, pubkey, firebaseUID, extension string) (*models.NostrTrack, error)
+	GetTrack(ctx context.Context, trackID string) (*models.NostrTrack, error)
+	GetTracksByPubkey(ctx context.Context, pubkey string) ([]*models.NostrTrack, error)
+	GetTracksByFirebaseUID(ctx context.Context, firebaseUID string) ([]*models.NostrTrack, error)
+	UpdateTrack(ctx context.Context, trackID string, updates map[string]interface{}) error
+	MarkTrackAsProcessed(ctx context.Context, trackID string, size int64, duration int) error
+	MarkTrackAsCompressed(ctx context.Context, trackID, compressedURL string) error
+	DeleteTrack(ctx context.Context, trackID string) error
+	HardDeleteTrack(ctx context.Context, trackID string) error
+	UpdateCompressionVisibility(ctx context.Context, trackID string, updates []models.VersionUpdate) error
+	AddCompressionVersion(ctx context.Context, trackID string, version models.CompressionVersion) error
+	SetPendingCompression(ctx context.Context, trackID string, pending bool) error
+}
+
+// ProcessingServiceInterface defines the interface for track processing operations
+type ProcessingServiceInterface interface {
+	ProcessTrack(ctx context.Context, trackID string) error
+	ProcessTrackAsync(ctx context.Context, trackID string)
+	RequestCompressionVersions(ctx context.Context, trackID string, compressionOptions []models.CompressionOption) error
+	ProcessCompressionAsync(ctx context.Context, trackID string, option models.CompressionOption)
+	ProcessCompression(ctx context.Context, trackID string, option models.CompressionOption) error
+}
+
+// AudioProcessorInterface defines the interface for audio processing operations
+type AudioProcessorInterface interface {
+	IsFormatSupported(extension string) bool
+}
+
 // Ensure services implement their interfaces
 var _ UserServiceInterface = (*UserService)(nil)
 var _ StorageServiceInterface = (*StorageService)(nil)
 var _ PostgresServiceInterface = (*PostgresService)(nil)
+var _ NostrTrackServiceInterface = (*NostrTrackService)(nil)
+var _ ProcessingServiceInterface = (*ProcessingService)(nil)

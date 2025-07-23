@@ -8,16 +8,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/wavlake/monorepo/internal/models"
 	"github.com/wavlake/monorepo/internal/services"
-	"github.com/wavlake/monorepo/internal/utils"
 )
 
 type TracksHandler struct {
-	nostrTrackService *services.NostrTrackService
-	processingService *services.ProcessingService
-	audioProcessor    *utils.AudioProcessor
+	nostrTrackService services.NostrTrackServiceInterface
+	processingService services.ProcessingServiceInterface
+	audioProcessor    services.AudioProcessorInterface
 }
 
-func NewTracksHandler(nostrTrackService *services.NostrTrackService, processingService *services.ProcessingService, audioProcessor *utils.AudioProcessor) *TracksHandler {
+func NewTracksHandler(nostrTrackService services.NostrTrackServiceInterface, processingService services.ProcessingServiceInterface, audioProcessor services.AudioProcessorInterface) *TracksHandler {
 	return &TracksHandler{
 		nostrTrackService: nostrTrackService,
 		processingService: processingService,

@@ -72,6 +72,12 @@ type AudioProcessorInterface interface {
 	IsFormatSupported(extension string) bool
 }
 
+// StoragePathConfigInterface defines the interface for storage path operations
+type StoragePathConfigInterface interface {
+	GetOriginalPath(trackID, extension string) string
+	GetCompressedPath(trackID string) string
+}
+
 // Ensure services implement their interfaces
 var _ UserServiceInterface = (*UserService)(nil)
 var _ StorageServiceInterface = (*StorageService)(nil)

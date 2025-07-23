@@ -695,3 +695,54 @@ func (mr *MockAudioProcessorInterfaceMockRecorder) IsFormatSupported(extension i
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsFormatSupported", reflect.TypeOf((*MockAudioProcessorInterface)(nil).IsFormatSupported), extension)
 }
+
+// MockStoragePathConfigInterface is a mock of StoragePathConfigInterface interface.
+type MockStoragePathConfigInterface struct {
+	ctrl     *gomock.Controller
+	recorder *MockStoragePathConfigInterfaceMockRecorder
+}
+
+// MockStoragePathConfigInterfaceMockRecorder is the mock recorder for MockStoragePathConfigInterface.
+type MockStoragePathConfigInterfaceMockRecorder struct {
+	mock *MockStoragePathConfigInterface
+}
+
+// NewMockStoragePathConfigInterface creates a new mock instance.
+func NewMockStoragePathConfigInterface(ctrl *gomock.Controller) *MockStoragePathConfigInterface {
+	mock := &MockStoragePathConfigInterface{ctrl: ctrl}
+	mock.recorder = &MockStoragePathConfigInterfaceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockStoragePathConfigInterface) EXPECT() *MockStoragePathConfigInterfaceMockRecorder {
+	return m.recorder
+}
+
+// GetCompressedPath mocks base method.
+func (m *MockStoragePathConfigInterface) GetCompressedPath(trackID string) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCompressedPath", trackID)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetCompressedPath indicates an expected call of GetCompressedPath.
+func (mr *MockStoragePathConfigInterfaceMockRecorder) GetCompressedPath(trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCompressedPath", reflect.TypeOf((*MockStoragePathConfigInterface)(nil).GetCompressedPath), trackID)
+}
+
+// GetOriginalPath mocks base method.
+func (m *MockStoragePathConfigInterface) GetOriginalPath(trackID, extension string) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOriginalPath", trackID, extension)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetOriginalPath indicates an expected call of GetOriginalPath.
+func (mr *MockStoragePathConfigInterfaceMockRecorder) GetOriginalPath(trackID, extension interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOriginalPath", reflect.TypeOf((*MockStoragePathConfigInterface)(nil).GetOriginalPath), trackID, extension)
+}

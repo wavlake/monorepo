@@ -9,21 +9,20 @@ import (
 	"cloud.google.com/go/firestore"
 	"github.com/google/uuid"
 	"github.com/wavlake/monorepo/internal/models"
-	"github.com/wavlake/monorepo/internal/utils"
 	"google.golang.org/api/iterator"
 )
 
 type NostrTrackService struct {
 	firestoreClient *firestore.Client
 	storageService  StorageServiceInterface
-	pathConfig      *utils.StoragePathConfig
+	pathConfig      StoragePathConfigInterface
 }
 
-func NewNostrTrackService(firestoreClient *firestore.Client, storageService StorageServiceInterface) *NostrTrackService {
+func NewNostrTrackService(firestoreClient *firestore.Client, storageService StorageServiceInterface, pathConfig StoragePathConfigInterface) *NostrTrackService {
 	return &NostrTrackService{
 		firestoreClient: firestoreClient,
 		storageService:  storageService,
-		pathConfig:      utils.GetStoragePathConfig(),
+		pathConfig:      pathConfig,
 	}
 }
 

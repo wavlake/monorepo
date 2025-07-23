@@ -112,6 +112,34 @@ func ValidTracksList() []*models.NostrTrack {
 	return []*models.NostrTrack{track1, track2}
 }
 
+// ValidCompressionVersion returns a valid CompressionVersion for testing
+func ValidCompressionVersion() models.CompressionVersion {
+	return models.CompressionVersion{
+		ID:         "v1-128k",
+		URL:        "https://storage.googleapis.com/test-bucket/compressed/test-track-123/128k.mp3",
+		Bitrate:    128,
+		Format:     "mp3",
+		Quality:    "standard",
+		SampleRate: 44100,
+		Size:       2048000,
+		IsPublic:   true,
+		CreatedAt:  time.Now(),
+		Options:    models.CompressionOption{
+			Bitrate:    128,
+			Format:     "mp3",
+			SampleRate: 44100,
+		},
+	}
+}
+
+// ValidVersionUpdate returns a valid VersionUpdate for testing
+func ValidVersionUpdate() models.VersionUpdate {
+	return models.VersionUpdate{
+		VersionID: "v1-128k",
+		IsPublic:  false,
+	}
+}
+
 // Constants for testing
 const (
 	TestFirebaseUID = "test-firebase-uid"
@@ -119,4 +147,5 @@ const (
 	TestPubkey2     = "test-pubkey-2"
 	TestEmail       = "test@example.com"
 	TestTrackID     = "test-track-123"
+	TestExtension   = "mp3"
 )

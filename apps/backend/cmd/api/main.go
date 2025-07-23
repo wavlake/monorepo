@@ -397,7 +397,7 @@ func main() {
 	tracksGroup := v1.Group("/tracks")
 	{
 		// Public endpoints
-		tracksGroup.GET("/:id", tracksHandler.GetTrack)
+		tracksGroup.GET("/:trackId", tracksHandler.GetTrack)
 
 		// NIP-98 authenticated endpoints
 		tracksGroup.POST("/nostr", gin.WrapH(nip98Middleware.Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

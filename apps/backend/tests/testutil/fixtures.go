@@ -140,6 +140,125 @@ func ValidVersionUpdate() models.VersionUpdate {
 	}
 }
 
+// Legacy model fixtures
+
+// ValidLegacyUser returns a valid LegacyUser for testing
+func ValidLegacyUser() models.LegacyUser {
+	return models.LegacyUser{
+		ID:               TestFirebaseUID,
+		Name:             "Test User",
+		LightningAddress: "test@wavlake.com",
+		MSatBalance:      1000000,
+		AmpMsat:          1000,
+		ArtworkURL:       "https://example.com/avatar.jpg",
+		ProfileURL:       "https://example.com/profile",
+		IsLocked:         false,
+		CreatedAt:        time.Now().Add(-24 * time.Hour),
+		UpdatedAt:        time.Now(),
+	}
+}
+
+// ValidLegacyTrack returns a valid LegacyTrack for testing
+func ValidLegacyTrack() models.LegacyTrack {
+	return models.LegacyTrack{
+		ID:              "track-123",
+		ArtistID:        "artist-123",
+		AlbumID:         "album-123",
+		Title:           "Test Track",
+		Order:           1,
+		PlayCount:       100,
+		MSatTotal:       50000,
+		LiveURL:         "https://example.com/track.mp3",
+		RawURL:          "https://example.com/raw.wav",
+		Size:            2048000,
+		Duration:        180,
+		IsProcessing:    false,
+		IsDraft:         false,
+		IsExplicit:      false,
+		CompressorError: false,
+		Deleted:         false,
+		Lyrics:          "Test lyrics",
+		CreatedAt:       time.Now().Add(-24 * time.Hour),
+		UpdatedAt:       time.Now(),
+		PublishedAt:     time.Now().Add(-12 * time.Hour),
+	}
+}
+
+// ValidLegacyArtist returns a valid LegacyArtist for testing
+func ValidLegacyArtist() models.LegacyArtist {
+	return models.LegacyArtist{
+		ID:         "artist-123",
+		UserID:     TestFirebaseUID,
+		Name:       "Test Artist",
+		ArtworkURL: "https://example.com/artist.jpg",
+		ArtistURL:  "test-artist",
+		Bio:        "Test artist bio",
+		Twitter:    "@testartist",
+		Instagram:  "@testartist",
+		Youtube:    "testartist",
+		Website:    "https://testartist.com",
+		Npub:       "npub1test...",
+		Verified:   false,
+		Deleted:    false,
+		MSatTotal:  75000,
+		CreatedAt:  time.Now().Add(-30 * 24 * time.Hour),
+		UpdatedAt:  time.Now(),
+	}
+}
+
+// ValidLegacyAlbum returns a valid LegacyAlbum for testing
+func ValidLegacyAlbum() models.LegacyAlbum {
+	return models.LegacyAlbum{
+		ID:              "album-123",
+		ArtistID:        "artist-123",
+		Title:           "Test Album",
+		ArtworkURL:      "https://example.com/album.jpg",
+		Description:     "Test album description",
+		GenreID:         1,
+		SubgenreID:      2,
+		IsDraft:         false,
+		IsSingle:        false,
+		Deleted:         false,
+		MSatTotal:       150000,
+		IsFeedPublished: true,
+		PublishedAt:     time.Now().Add(-7 * 24 * time.Hour),
+		CreatedAt:       time.Now().Add(-30 * 24 * time.Hour),
+		UpdatedAt:       time.Now(),
+	}
+}
+
+// ValidLegacyTracksList returns a list of valid LegacyTracks for testing
+func ValidLegacyTracksList() []models.LegacyTrack {
+	track1 := ValidLegacyTrack()
+	track2 := ValidLegacyTrack()
+	track2.ID = "track-456"
+	track2.Title = "Test Track 2"
+	track2.Order = 2
+	
+	return []models.LegacyTrack{track1, track2}
+}
+
+// ValidLegacyArtistsList returns a list of valid LegacyArtists for testing
+func ValidLegacyArtistsList() []models.LegacyArtist {
+	artist1 := ValidLegacyArtist()
+	artist2 := ValidLegacyArtist()
+	artist2.ID = "artist-456"
+	artist2.Name = "Test Artist 2"
+	artist2.ArtistURL = "test-artist-2"
+	
+	return []models.LegacyArtist{artist1, artist2}
+}
+
+// ValidLegacyAlbumsList returns a list of valid LegacyAlbums for testing
+func ValidLegacyAlbumsList() []models.LegacyAlbum {
+	album1 := ValidLegacyAlbum()
+	album2 := ValidLegacyAlbum()
+	album2.ID = "album-456"
+	album2.Title = "Test Album 2"
+	
+	return []models.LegacyAlbum{album1, album2}
+}
+
 // Constants for testing
 const (
 	TestFirebaseUID = "test-firebase-uid"
@@ -148,4 +267,6 @@ const (
 	TestEmail       = "test@example.com"
 	TestTrackID     = "test-track-123"
 	TestExtension   = "mp3"
+	TestArtistID    = "artist-123"
+	TestAlbumID     = "album-123"
 )

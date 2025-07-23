@@ -95,10 +95,8 @@ func (suite *LegacyCompatibilityTestSuite) setupLegacyRoutes(
 	audioProcessor *utils.AudioProcessor,
 	devConfig *config.DevConfig,
 ) {
-	// Heartbeat endpoint (both legacy and new should work)
-	suite.router.GET("/heartbeat", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "ok"})
-	})
+	// Heartbeat endpoint (both legacy and new should work) - use actual handler
+	suite.router.GET("/heartbeat", gin.WrapF(handlers.Heartbeat))
 	
 	// Legacy API group (v1)
 	v1 := suite.router.Group("/v1")

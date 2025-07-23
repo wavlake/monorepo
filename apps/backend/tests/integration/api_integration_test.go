@@ -102,10 +102,8 @@ func (suite *APIIntegrationTestSuite) setupRoutes(
 	audioProcessor *utils.AudioProcessor,
 	devConfig *config.DevConfig,
 ) {
-	// Heartbeat endpoint
-	suite.router.GET("/heartbeat", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "ok"})
-	})
+	// Heartbeat endpoint - use actual handler
+	suite.router.GET("/heartbeat", gin.WrapF(handlers.Heartbeat))
 	
 	// Development endpoints
 	if devConfig.IsDevelopment {
@@ -192,6 +190,7 @@ func (suite *APIIntegrationTestSuite) TestHeartbeat() {
 	assert.Equal(suite.T(), "ok", response["status"])
 	resp.Body.Close()
 }
+
 
 // Test development status endpoint
 func (suite *APIIntegrationTestSuite) TestDevStatus() {

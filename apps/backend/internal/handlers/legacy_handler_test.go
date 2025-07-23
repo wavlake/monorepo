@@ -30,7 +30,7 @@ var _ = Describe("LegacyHandler", func() {
 		ctrl = gomock.NewController(GinkgoT())
 		mockPostgresService = mocks.NewMockPostgresServiceInterface(ctrl)
 		legacyHandler = handlers.NewLegacyHandler(mockPostgresService)
-		
+
 		gin.SetMode(gin.TestMode)
 		router = gin.New()
 		testFirebaseUID = testutil.TestFirebaseUID
@@ -68,15 +68,15 @@ var _ = Describe("LegacyHandler", func() {
 				mockPostgresService.EXPECT().
 					GetUserByFirebaseUID(gomock.Any(), testFirebaseUID).
 					Return(expectedUser, nil)
-				
+
 				mockPostgresService.EXPECT().
 					GetUserArtists(gomock.Any(), testFirebaseUID).
 					Return(expectedArtists, nil)
-				
+
 				mockPostgresService.EXPECT().
 					GetUserAlbums(gomock.Any(), testFirebaseUID).
 					Return(expectedAlbums, nil)
-				
+
 				mockPostgresService.EXPECT().
 					GetUserTracks(gomock.Any(), testFirebaseUID).
 					Return(expectedTracks, nil)
@@ -86,26 +86,26 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusOK))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("user"))
 				Expect(response).To(HaveKey("artists"))
 				Expect(response).To(HaveKey("albums"))
 				Expect(response).To(HaveKey("tracks"))
-				
+
 				// Verify user data structure
 				user := response["user"].(map[string]interface{})
 				Expect(user["id"]).To(Equal(expectedUser.ID))
 				Expect(user["name"]).To(Equal(expectedUser.Name))
-				
+
 				// Verify arrays are populated
 				artists := response["artists"].([]interface{})
 				albums := response["albums"].([]interface{})
 				tracks := response["tracks"].([]interface{})
-				
+
 				Expect(artists).To(HaveLen(2))
 				Expect(albums).To(HaveLen(2))
 				Expect(tracks).To(HaveLen(2))
@@ -121,18 +121,18 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusOK))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response["user"]).To(BeNil())
-				
+
 				// Verify empty arrays are returned, not null
 				artists := response["artists"].([]interface{})
 				albums := response["albums"].([]interface{})
 				tracks := response["tracks"].([]interface{})
-				
+
 				Expect(artists).To(BeEmpty())
 				Expect(albums).To(BeEmpty())
 				Expect(tracks).To(BeEmpty())
@@ -142,16 +142,16 @@ var _ = Describe("LegacyHandler", func() {
 				mockPostgresService.EXPECT().
 					GetUserByFirebaseUID(gomock.Any(), testFirebaseUID).
 					Return(expectedUser, nil)
-				
+
 				mockPostgresService.EXPECT().
 					GetUserArtists(gomock.Any(), testFirebaseUID).
 					Return(expectedArtists, nil)
-				
+
 				// Albums query fails with non-database error (user not found)
 				mockPostgresService.EXPECT().
 					GetUserAlbums(gomock.Any(), testFirebaseUID).
 					Return(nil, sql.ErrNoRows)
-				
+
 				mockPostgresService.EXPECT().
 					GetUserTracks(gomock.Any(), testFirebaseUID).
 					Return(expectedTracks, nil)
@@ -161,18 +161,18 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusOK))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				// User and other data should be present
 				Expect(response["user"]).ToNot(BeNil())
-				
+
 				artists := response["artists"].([]interface{})
 				albums := response["albums"].([]interface{})
 				tracks := response["tracks"].([]interface{})
-				
+
 				Expect(artists).To(HaveLen(2))
 				Expect(albums).To(BeEmpty()) // Failed query returns empty array
 				Expect(tracks).To(HaveLen(2))
@@ -188,11 +188,11 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("error"))
 				Expect(response["error"]).To(Equal("Database error"))
 			})
@@ -201,16 +201,16 @@ var _ = Describe("LegacyHandler", func() {
 				mockPostgresService.EXPECT().
 					GetUserByFirebaseUID(gomock.Any(), testFirebaseUID).
 					Return(expectedUser, nil)
-				
+
 				// Artists query fails with database error
 				mockPostgresService.EXPECT().
 					GetUserArtists(gomock.Any(), testFirebaseUID).
 					Return(nil, errors.New("relation artists does not exist"))
-				
+
 				mockPostgresService.EXPECT().
 					GetUserAlbums(gomock.Any(), testFirebaseUID).
 					Return(expectedAlbums, nil)
-				
+
 				mockPostgresService.EXPECT().
 					GetUserTracks(gomock.Any(), testFirebaseUID).
 					Return(expectedTracks, nil)
@@ -220,18 +220,18 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusOK))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				// Should continue with other data despite database error
 				Expect(response["user"]).ToNot(BeNil())
-				
+
 				artists := response["artists"].([]interface{})
 				albums := response["albums"].([]interface{})
 				tracks := response["tracks"].([]interface{})
-				
+
 				Expect(artists).To(BeEmpty()) // Database error results in empty array
 				Expect(albums).To(HaveLen(2))
 				Expect(tracks).To(HaveLen(2))
@@ -241,15 +241,15 @@ var _ = Describe("LegacyHandler", func() {
 				mockPostgresService.EXPECT().
 					GetUserByFirebaseUID(gomock.Any(), testFirebaseUID).
 					Return(expectedUser, nil)
-				
+
 				mockPostgresService.EXPECT().
 					GetUserArtists(gomock.Any(), testFirebaseUID).
 					Return(nil, errors.New("network timeout"))
-				
+
 				mockPostgresService.EXPECT().
 					GetUserAlbums(gomock.Any(), testFirebaseUID).
 					Return(nil, errors.New("connection lost"))
-				
+
 				mockPostgresService.EXPECT().
 					GetUserTracks(gomock.Any(), testFirebaseUID).
 					Return(nil, errors.New("permission denied"))
@@ -259,18 +259,18 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusOK))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				// Should handle all database errors gracefully
 				Expect(response["user"]).ToNot(BeNil())
-				
+
 				artists := response["artists"].([]interface{})
 				albums := response["albums"].([]interface{})
 				tracks := response["tracks"].([]interface{})
-				
+
 				Expect(artists).To(BeEmpty())
 				Expect(albums).To(BeEmpty())
 				Expect(tracks).To(BeEmpty())
@@ -288,11 +288,11 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusUnauthorized))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("error"))
 				Expect(response["error"]).To(Equal("Failed to find an associated Firebase UID"))
 			})
@@ -338,15 +338,15 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusOK))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("tracks"))
 				tracks := response["tracks"].([]interface{})
 				Expect(tracks).To(HaveLen(2))
-				
+
 				// Verify track data structure
 				firstTrack := tracks[0].(map[string]interface{})
 				Expect(firstTrack["title"]).To(Equal("Test Track"))
@@ -363,11 +363,11 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusOK))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("tracks"))
 				tracks := response["tracks"].([]interface{})
 				Expect(tracks).To(BeEmpty())
@@ -383,11 +383,11 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusOK))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("tracks"))
 				tracks := response["tracks"].([]interface{})
 				Expect(tracks).To(BeEmpty())
@@ -403,11 +403,11 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("error"))
 				Expect(response["error"]).To(Equal("database error"))
 			})
@@ -422,11 +422,11 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response["error"]).To(Equal("database error"))
 			})
 
@@ -466,11 +466,11 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusUnauthorized))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("error"))
 				Expect(response["error"]).To(Equal("authentication required"))
 			})
@@ -516,15 +516,15 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusOK))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("artists"))
 				artists := response["artists"].([]interface{})
 				Expect(artists).To(HaveLen(2))
-				
+
 				// Verify artist data structure
 				firstArtist := artists[0].(map[string]interface{})
 				Expect(firstArtist["name"]).To(Equal("Test Artist"))
@@ -541,11 +541,11 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusOK))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("artists"))
 				artists := response["artists"].([]interface{})
 				Expect(artists).To(BeEmpty())
@@ -561,11 +561,11 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusOK))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("artists"))
 				artists := response["artists"].([]interface{})
 				Expect(artists).To(BeEmpty())
@@ -581,11 +581,11 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("error"))
 				Expect(response["error"]).To(Equal("database error"))
 			})
@@ -600,11 +600,11 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response["error"]).To(Equal("database error"))
 			})
 
@@ -644,11 +644,11 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusUnauthorized))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("error"))
 				Expect(response["error"]).To(Equal("authentication required"))
 			})
@@ -694,15 +694,15 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusOK))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("albums"))
 				albums := response["albums"].([]interface{})
 				Expect(albums).To(HaveLen(2))
-				
+
 				// Verify album data structure
 				firstAlbum := albums[0].(map[string]interface{})
 				Expect(firstAlbum["title"]).To(Equal("Test Album"))
@@ -719,11 +719,11 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusOK))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("albums"))
 				albums := response["albums"].([]interface{})
 				Expect(albums).To(BeEmpty())
@@ -739,11 +739,11 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusOK))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("albums"))
 				albums := response["albums"].([]interface{})
 				Expect(albums).To(BeEmpty())
@@ -759,11 +759,11 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("error"))
 				Expect(response["error"]).To(Equal("database error"))
 			})
@@ -778,11 +778,11 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response["error"]).To(Equal("database error"))
 			})
 
@@ -822,11 +822,11 @@ var _ = Describe("LegacyHandler", func() {
 				router.ServeHTTP(w, req)
 
 				Expect(w.Code).To(Equal(http.StatusUnauthorized))
-				
+
 				var response map[string]interface{}
 				err := testutil.ParseJSONResponse(w.Body, &response)
 				Expect(err).ToNot(HaveOccurred())
-				
+
 				Expect(response).To(HaveKey("error"))
 				Expect(response["error"]).To(Equal("authentication required"))
 			})

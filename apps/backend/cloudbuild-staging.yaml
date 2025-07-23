@@ -26,6 +26,10 @@ steps:
       '--allow-unauthenticated',
       # Environment variables
       '--set-env-vars', 'GOOGLE_CLOUD_PROJECT=$PROJECT_ID,ENVIRONMENT=staging,GCS_BUCKET_NAME=${_GCS_BUCKET},TEMP_DIR=/tmp',
+      # PostgreSQL connection via VPC and secrets
+      '--vpc-connector', 'cloud-sql-postgres',
+      '--vpc-egress', 'private-ranges-only',
+      '--set-secrets', 'PROD_POSTGRES_CONNECTION_STRING_RO=PROD_POSTGRES_CONNECTION_STRING_RO:latest',
       '--min-instances', '${_MIN_INSTANCES}',
       '--max-instances', '${_MAX_INSTANCES}',
       '--memory', '${_MEMORY}',

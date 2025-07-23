@@ -311,6 +311,7 @@ tasks:
     cmds:
       - task: types:clean
       - task: types:go-to-ts
+      - task: types:index
       - task: types:nostr
       - "echo 'Types generated successfully'"
 
@@ -321,9 +322,16 @@ tasks:
       - mkdir -p {{.SHARED_TYPES_DIR}}/api
 
   types:go-to-ts:
-    desc: "Generate TypeScript interfaces from Go structs"
+    desc: "Generate TypeScript interfaces from Go structs using tygo"
     cmds:
-      - cd {{.BACKEND_DIR}} && go run ./tools/typegen
+      - cd {{.BACKEND_DIR}} && tygo generate
+
+  types:index:
+    desc: "Generate index.ts file for API types"
+    cmds:
+      - |
+        echo '// Generated index file for API types
+        export * from "./types";' > {{.SHARED_TYPES_DIR}}/api/index.ts
 
   types:nostr:
     desc: "Generate/update Nostr event type definitions"

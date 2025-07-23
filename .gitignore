@@ -10,6 +10,9 @@ apps/backend/bin/
 apps/backend/coverage.out
 apps/backend/coverage.html
 
+# Frontend coverage
+apps/frontend/coverage/
+
 # Development files
 apps/backend/dev-storage/
 .env.local

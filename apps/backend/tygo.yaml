@@ -1,0 +1,37 @@
+packages:
+  - path: "./internal/models"
+    type_mappings:
+      time.Time: "string"
+      uuid.UUID: "string"
+      json.RawMessage: "any"
+      "firestore.DocumentRef": "string"
+    output_path: "../../packages/shared-types/api/models.ts"
+    
+  - path: "./internal/handlers"
+    type_mappings:
+      time.Time: "string"
+      uuid.UUID: "string"
+      json.RawMessage: "any"
+      "firestore.DocumentRef": "string"
+      "models.LinkedPubkeyInfo": "LinkedPubkeyInfo"
+      "models.LegacyUser": "LegacyUser"
+      "models.LegacyArtist": "LegacyArtist"
+      "models.LegacyAlbum": "LegacyAlbum"
+      "models.LegacyTrack": "LegacyTrack"
+      "models.User": "User"
+      "models.Track": "Track"
+      "models.NostrTrack": "NostrTrack"
+    output_path: "../../packages/shared-types/api/requests-responses.ts"
+    exclude_files:
+      - "*_test.go"
+    filters:
+      struct_filters:
+        - ".*Request$"
+        - ".*Response$"
+    frontmatter: |
+      import * as models from './models';
+
+style:
+  int_type: "number"
+  preserve_comments: true
+  export_all: true

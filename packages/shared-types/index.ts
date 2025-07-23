@@ -1,13 +1,13 @@
 // Shared Types Index - Central export for all shared types
 
-// API types (generated from Go backend)
-export * from './api';
+// Common utility types
+export * from './common';
 
 // Nostr types (manually maintained)
 export * from './nostr';
 
-// Common utility types
-export * from './common';
+// API types (generated from Go backend using tygo)
+export * from './api';
 
 // Re-export frequently used types for convenience
 export type {
@@ -15,17 +15,13 @@ export type {
   ApiResponse,
   PaginatedResponse,
   ErrorResponse,
-  
-  // Nostr types
-  NostrEvent,
-  NostrEventKind,
-  TrackMetadata,
-  AlbumMetadata,
-  UserMetadata,
-  
-  // API types (will be generated)
-  // User,
-  // Track,
-  // Album,
-  // Playlist
-} from './api';
+} from './common';
+
+// Nostr types will be re-exported when needed
+// export type {
+//   NostrEvent,
+//   NostrEventKind,
+//   TrackMetadata,
+//   AlbumMetadata,
+//   UserMetadata,
+// } from './nostr';

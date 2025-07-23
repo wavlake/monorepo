@@ -1,5 +1,5 @@
 packages:
-  - path: "./internal/models"
+  - path: "github.com/wavlake/monorepo/internal/models"
     type_mappings:
       time.Time: "string"
       uuid.UUID: "string"
@@ -7,29 +7,19 @@ packages:
       "firestore.DocumentRef": "string"
     output_path: "../../packages/shared-types/api/models.ts"
     
-  - path: "./internal/handlers"
+  - path: "github.com/wavlake/monorepo/internal/handlers"
     type_mappings:
       time.Time: "string"
       uuid.UUID: "string"
       json.RawMessage: "any"
       "firestore.DocumentRef": "string"
-      "models.LinkedPubkeyInfo": "LinkedPubkeyInfo"
-      "models.LegacyUser": "LegacyUser"
-      "models.LegacyArtist": "LegacyArtist"
-      "models.LegacyAlbum": "LegacyAlbum"
-      "models.LegacyTrack": "LegacyTrack"
-      "models.User": "User"
-      "models.Track": "Track"
-      "models.NostrTrack": "NostrTrack"
-    output_path: "../../packages/shared-types/api/requests-responses.ts"
+    output_path: "../../packages/shared-types/api/handlers.ts"
     exclude_files:
       - "*_test.go"
     filters:
       struct_filters:
         - ".*Request$"
         - ".*Response$"
-    frontmatter: |
-      import * as models from './models';
 
 style:
   int_type: "number"

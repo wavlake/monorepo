@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/wavlake/monorepo/internal/models"
 	"github.com/wavlake/monorepo/internal/services"
 )
 
@@ -130,18 +131,11 @@ func (h *AuthHandlers) UnlinkPubkey(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// LinkedPubkeyInfo represents pubkey information in the response
-type LinkedPubkeyInfo struct {
-	PubKey     string `json:"pubkey"`
-	LinkedAt   string `json:"linked_at"`
-	LastUsedAt string `json:"last_used_at,omitempty"`
-}
-
 // GetLinkedPubkeysResponse represents the response for getting linked pubkeys
 type GetLinkedPubkeysResponse struct {
-	Success       bool               `json:"success"`
-	FirebaseUID   string             `json:"firebase_uid"`
-	LinkedPubkeys []LinkedPubkeyInfo `json:"linked_pubkeys"`
+	Success       bool                      `json:"success"`
+	FirebaseUID   string                    `json:"firebase_uid"`
+	LinkedPubkeys []models.LinkedPubkeyInfo `json:"linked_pubkeys"`
 }
 
 // GetLinkedPubkeys handles GET /v1/auth/get-linked-pubkeys
@@ -169,9 +163,9 @@ func (h *AuthHandlers) GetLinkedPubkeys(c *gin.Context) {
 	}
 
 	// Convert to response format
-	var linkedPubkeys []LinkedPubkeyInfo
+	var linkedPubkeys []models.LinkedPubkeyInfo
 	for _, p := range pubkeys {
-		info := LinkedPubkeyInfo{
+		info := models.LinkedPubkeyInfo{
 			PubKey:   p.Pubkey,
 			LinkedAt: p.LinkedAt.Format(time.RFC3339),
 		}
@@ -185,7 +179,7 @@ func (h *AuthHandlers) GetLinkedPubkeys(c *gin.Context) {
 
 	// Ensure we always return an empty array instead of null
 	if linkedPubkeys == nil {
-		linkedPubkeys = []LinkedPubkeyInfo{}
+		linkedPubkeys = []models.LinkedPubkeyInfo{}
 	}
 
 	response := GetLinkedPubkeysResponse{

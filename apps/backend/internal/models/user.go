@@ -49,6 +49,13 @@ type NostrAuth struct {
 	LinkedAt    time.Time `firestore:"linked_at"` // When linked to Firebase user
 }
 
+// LinkedPubkeyInfo represents pubkey information in the response
+type LinkedPubkeyInfo struct {
+	PubKey     string `json:"pubkey"`
+	LinkedAt   string `json:"linked_at"`
+	LastUsedAt string `json:"last_used_at,omitempty"`
+}
+
 // CompressionOption represents a user's choice for audio compression
 type CompressionOption struct {
 	Bitrate    int    `json:"bitrate"`               // e.g., 128, 256, 320

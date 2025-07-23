@@ -19,7 +19,7 @@ import (
 	_ "github.com/lib/pq" // PostgreSQL driver
 	"github.com/wavlake/monorepo/internal/auth"
 	"github.com/wavlake/monorepo/internal/config"
-	// "github.com/wavlake/monorepo/internal/handlers" // PLACEHOLDER FOR PHASE 2
+	"github.com/wavlake/monorepo/internal/handlers"
 	"github.com/wavlake/monorepo/internal/middleware"
 	"github.com/wavlake/monorepo/internal/services"
 	"github.com/wavlake/monorepo/internal/utils"
@@ -130,98 +130,87 @@ func main() {
 	}
 	defer firestoreClient.Close()
 
-	// Initialize PostgreSQL connection (optional) - PLACEHOLDER FOR PHASE 2
-	// var postgresService services.PostgresServiceInterface
-	// pgConnStr := os.Getenv("PROD_POSTGRES_CONNECTION_STRING_RO")
-	// if pgConnStr != "" {
-	//     maxOpenConns := getEnvAsInt("POSTGRES_MAX_CONNECTIONS", 10)
-	//     maxIdleConns := getEnvAsInt("POSTGRES_MAX_IDLE_CONNECTIONS", 5)
-	//
-	//     db, err := sql.Open("postgres", pgConnStr)
-	//     if err != nil {
-	//         log.Fatalf("Failed to open PostgreSQL connection: %v", err)
-	//     }
-	//     defer db.Close()
-	//
-	//     // Configure connection pool
-	//     db.SetMaxOpenConns(maxOpenConns)
-	//     db.SetMaxIdleConns(maxIdleConns)
-	//     db.SetConnMaxLifetime(time.Hour)
-	//
-	//     // Test connection
-	//     if err := db.PingContext(ctx); err != nil {
-	//         log.Printf("PostgreSQL connection test failed: %v", err)
-	//     } else {
-	//         postgresService = services.NewPostgresService(db)
-	//         log.Println("PostgreSQL connection established successfully")
-	//     }
-	// } else {
-	//     log.Println("PostgreSQL connection string not provided, skipping PostgreSQL setup")
-	// }
+	// Initialize PostgreSQL connection (optional)
+	var postgresService services.PostgresServiceInterface
+	pgConnStr := os.Getenv("PROD_POSTGRES_CONNECTION_STRING_RO")
+	if pgConnStr != "" {
+		maxOpenConns := getEnvAsInt("POSTGRES_MAX_CONNECTIONS", 10)
+		maxIdleConns := getEnvAsInt("POSTGRES_MAX_IDLE_CONNECTIONS", 5)
 
-	// Initialize services - PLACEHOLDER FOR PHASE 2
-	// var userService services.UserServiceInterface
-	// if firebaseAuth != nil {
-	//     userService = services.NewUserService(firestoreClient, firebaseAuth)
-	// } else {
-	//     // For development without Firebase, we'll need a mock user service
-	//     // This would need to be implemented in services if needed
-	//     log.Println("⚠️  UserService requires Firebase Auth - some features will not work")
-	//     userService = services.NewUserService(firestoreClient, nil) // This might need adjustment based on your service implementation
-	// }
+		db, err := sql.Open("postgres", pgConnStr)
+		if err != nil {
+			log.Fatalf("Failed to open PostgreSQL connection: %v", err)
+		}
+		defer db.Close()
 
-	// Initialize storage service (GCS or mock) - PLACEHOLDER FOR PHASE 2
-	// var storageService services.StorageServiceInterface
-	// if devConfig.MockStorage {
-	//     log.Printf("Initializing mock storage service with path: %s", devConfig.MockStoragePath)
-	//     storageService, err = services.NewMockStorageService(bucketName, devConfig.MockStoragePath, devConfig.FileServerURL)
-	//     if err != nil {
-	//         log.Fatalf("Failed to initialize mock storage service: %v", err)
-	//     }
-	// } else {
-	//     log.Printf("Initializing GCS storage service with bucket: %s", bucketName)
-	//     realStorageService, err := services.NewStorageService(ctx, bucketName)
-	//     if err != nil {
-	//         log.Fatalf("Failed to initialize GCS storage service: %v", err)
-	//     }
-	//     defer realStorageService.Close()
-	//     storageService = realStorageService
-	// }
+		// Configure connection pool
+		db.SetMaxOpenConns(maxOpenConns)
+		db.SetMaxIdleConns(maxIdleConns)
+		db.SetConnMaxLifetime(time.Hour)
 
-	// PLACEHOLDER FOR PHASE 2 - Services will be migrated when packages exist
-	// nostrTrackService := services.NewNostrTrackService(firestoreClient, storageService)
-	// audioProcessor := utils.NewAudioProcessor(tempDir)
-	// processingService := services.NewProcessingService(storageService, nostrTrackService, audioProcessor, tempDir)
+		// Test connection
+		if err := db.PingContext(ctx); err != nil {
+			log.Printf("PostgreSQL connection test failed: %v", err)
+		} else {
+			postgresService = services.NewPostgresService(db)
+			log.Println("PostgreSQL connection established successfully")
+		}
+	} else {
+		log.Println("PostgreSQL connection string not provided, skipping PostgreSQL setup")
+	}
 
-	// Initialize middleware - PLACEHOLDER FOR PHASE 2
-	// var firebaseMiddleware *auth.FirebaseMiddleware
-	// var dualAuthMiddleware *auth.DualAuthMiddleware
-	// var flexibleAuthMiddleware *auth.FlexibleAuthMiddleware
+	// Initialize services
+	var userService services.UserServiceInterface
+	if firebaseAuth != nil {
+		userService = services.NewUserService(firestoreClient, firebaseAuth)
+	} else {
+		// For development without Firebase, we'll need a mock user service
+		// This would need to be implemented in services if needed
+		log.Println("⚠️  UserService requires Firebase Auth - some features will not work")
+		userService = services.NewUserService(firestoreClient, nil) // This might need adjustment based on your service implementation
+	}
 
-	// if firebaseAuth != nil {
-	//     firebaseMiddleware = auth.NewFirebaseMiddleware(firebaseAuth)
-	//     dualAuthMiddleware = auth.NewDualAuthMiddleware(firebaseAuth)
-	//     flexibleAuthMiddleware = auth.NewFlexibleAuthMiddleware(firebaseAuth, firestoreClient)
-	// } else if devConfig.IsDevelopment {
-	//     log.Println("⚠️  Firebase middleware not initialized - Firebase-dependent endpoints will be disabled")
-	// }
+	// Initialize storage service (GCS only for now)
+	log.Printf("Initializing GCS storage service with bucket: %s", bucketName)
+	realStorageService, err := services.NewStorageService(ctx, bucketName)
+	if err != nil {
+		log.Fatalf("Failed to initialize GCS storage service: %v", err)
+	}
+	defer realStorageService.Close()
+	storageService := realStorageService
 
-	// firebaseLinkGuard := auth.NewFirebaseLinkGuard(firestoreClient)
-	// nip98Middleware, err := auth.NewNIP98Middleware(ctx, projectID)
-	// if err != nil {
-	//     log.Fatalf("Failed to create NIP-98 middleware: %v", err)
-	// }
+	// Initialize remaining services
+	nostrTrackService := services.NewNostrTrackService(firestoreClient, storageService)
+	audioProcessor := utils.NewAudioProcessor(tempDir)
+	processingService := services.NewProcessingService(storageService, nostrTrackService, audioProcessor, tempDir)
 
-	// Initialize handlers - PLACEHOLDER FOR PHASE 2
-	// These will be implemented in Phase 2: Core Migration when handlers package is migrated
-	// authHandlers := handlers.NewAuthHandlers(userService)
-	// tracksHandler := handlers.NewTracksHandler(nostrTrackService, processingService, audioProcessor)
+	// Initialize middleware
+	var firebaseMiddleware *auth.FirebaseMiddleware
+	var dualAuthMiddleware *auth.DualAuthMiddleware
+	var flexibleAuthMiddleware *auth.FlexibleAuthMiddleware
 
-	// Initialize legacy handler if PostgreSQL is available - PLACEHOLDER FOR PHASE 2
-	// var legacyHandler *handlers.LegacyHandler
-	// if postgresService != nil {
-	//     legacyHandler = handlers.NewLegacyHandler(postgresService)
-	// }
+	if firebaseAuth != nil {
+		firebaseMiddleware = auth.NewFirebaseMiddleware(firebaseAuth)
+		dualAuthMiddleware = auth.NewDualAuthMiddleware(firebaseAuth)
+		flexibleAuthMiddleware = auth.NewFlexibleAuthMiddleware(firebaseAuth, firestoreClient)
+	} else if devConfig.IsDevelopment {
+		log.Println("⚠️  Firebase middleware not initialized - Firebase-dependent endpoints will be disabled")
+	}
+
+	nip98Middleware, err := auth.NewNIP98Middleware(ctx, projectID)
+	if err != nil {
+		log.Fatalf("Failed to create NIP-98 middleware: %v", err)
+	}
+
+	// Initialize handlers
+	authHandlers := handlers.NewAuthHandlers(userService)
+	tracksHandler := handlers.NewTracksHandler(nostrTrackService, processingService, audioProcessor)
+
+	// Initialize legacy handler if PostgreSQL is available
+	var legacyHandler *handlers.LegacyHandler
+	if postgresService != nil {
+		legacyHandler = handlers.NewLegacyHandler(postgresService)
+	}
 
 	// Set up Gin router
 	if os.Getenv("GIN_MODE") == "" {
@@ -351,85 +340,95 @@ func main() {
 		}
 	}
 
-	// API Endpoints - PLACEHOLDER FOR PHASE 2
-	// All API endpoints will be added in Phase 2 when handlers and middleware are migrated
-	// v1 := router.Group("/v1")
+	// API Endpoints
+	v1 := router.Group("/v1")
 	
-	// PLACEHOLDER FOR PHASE 2: Auth endpoints will be added when handlers are migrated
-	// authGroup := v1.Group("/auth")
-	// {
-	//     // Firebase auth only endpoints (only register if Firebase is available)
-	//     if firebaseMiddleware != nil {
-	//         authGroup.GET("/get-linked-pubkeys", firebaseMiddleware.Middleware(), authHandlers.GetLinkedPubkeys)
-	//         authGroup.POST("/unlink-pubkey", firebaseMiddleware.Middleware(), authHandlers.UnlinkPubkey)
-	//     } else if devConfig.IsDevelopment {
-	//         // Add stub endpoints that return appropriate development errors
-	//         authGroup.GET("/get-linked-pubkeys", func(c *gin.Context) {
-	//             c.JSON(503, gin.H{"error": "Firebase authentication not available in development mode (SKIP_AUTH=true)"})
-	//         })
-	//         authGroup.POST("/unlink-pubkey", func(c *gin.Context) {
-	//             c.JSON(503, gin.H{"error": "Firebase authentication not available in development mode (SKIP_AUTH=true)"})
-	//         })
-	//     }
-	//
-	//     // Dual auth required endpoint (only register if Firebase is available)
-	//     if dualAuthMiddleware != nil {
-	//         authGroup.POST("/link-pubkey", dualAuthMiddleware.Middleware(), authHandlers.LinkPubkey)
-	//     } else if devConfig.IsDevelopment {
-	//         authGroup.POST("/link-pubkey", func(c *gin.Context) {
-	//             c.JSON(503, gin.H{"error": "Dual authentication not available in development mode (SKIP_AUTH=true)"})
-	//         })
-	//     }
-	//
-	//     // NIP-98 signature validation only endpoint (no database lookup required)
-	//     authGroup.POST("/check-pubkey-link", gin.WrapH(nip98Middleware.SignatureValidationMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	//         c, _ := gin.CreateTestContext(w)
-	//         c.Request = r
-	//         if pubkey := r.Context().Value("pubkey"); pubkey != nil {
-	//             c.Set("pubkey", pubkey)
-	//         }
-	//         authHandlers.CheckPubkeyLink(c)
-	//     }))))
-	// }
+	// Auth endpoints
+	authGroup := v1.Group("/auth")
+	{
+		// Firebase auth only endpoints (only register if Firebase is available)
+		if firebaseMiddleware != nil {
+			authGroup.GET("/get-linked-pubkeys", firebaseMiddleware.Middleware(), authHandlers.GetLinkedPubkeys)
+			authGroup.POST("/unlink-pubkey", firebaseMiddleware.Middleware(), authHandlers.UnlinkPubkey)
+		} else if devConfig.IsDevelopment {
+			// Add stub endpoints that return appropriate development errors
+			authGroup.GET("/get-linked-pubkeys", func(c *gin.Context) {
+				c.JSON(503, gin.H{"error": "Firebase authentication not available in development mode (SKIP_AUTH=true)"})
+			})
+			authGroup.POST("/unlink-pubkey", func(c *gin.Context) {
+				c.JSON(503, gin.H{"error": "Firebase authentication not available in development mode (SKIP_AUTH=true)"})
+			})
+		}
 
-	// PLACEHOLDER FOR PHASE 2: Protected endpoints will be added when middleware is migrated
-	// protectedGroup := v1.Group("/protected")
-	// protectedGroup.Use(gin.WrapH(nip98Middleware.Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	//     // Convert back to Gin context
-	//     c, _ := gin.CreateTestContext(w)
-	//     c.Request = r
-	//     c.Next()
-	// }))))
-	// {
-	//     // Add NIP-98 protected endpoints here in the future
-	// }
+		// Dual auth required endpoint (only register if Firebase is available)
+		if dualAuthMiddleware != nil {
+			authGroup.POST("/link-pubkey", dualAuthMiddleware.Middleware(), authHandlers.LinkPubkey)
+		} else if devConfig.IsDevelopment {
+			authGroup.POST("/link-pubkey", func(c *gin.Context) {
+				c.JSON(503, gin.H{"error": "Dual authentication not available in development mode (SKIP_AUTH=true)"})
+			})
+		}
 
-	// PLACEHOLDER FOR PHASE 2: Tracks endpoints will be added when handlers are migrated
-	// tracksGroup := v1.Group("/tracks")
-	// {
-	//     // Public endpoints
-	//     tracksGroup.GET("/:id", tracksHandler.GetTrack)
-	//
-	//     // Webhook endpoint for processing notifications
-	//     tracksGroup.POST("/webhook/process", tracksHandler.ProcessTrackWebhook)
-	//
-	//     // All other track endpoints require handlers and middleware...
-	// }
+		// NIP-98 signature validation only endpoint (no database lookup required)
+		authGroup.POST("/check-pubkey-link", gin.WrapH(nip98Middleware.SignatureValidationMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			c, _ := gin.CreateTestContext(w)
+			c.Request = r
+			if pubkey := r.Context().Value("pubkey"); pubkey != nil {
+				c.Set("pubkey", pubkey)
+			}
+			authHandlers.CheckPubkeyLink(c)
+		}))))
+	}
 
-	// PLACEHOLDER FOR PHASE 2: Legacy endpoints will be added when handlers are migrated
-	// if legacyHandler != nil && flexibleAuthMiddleware != nil {
-	//     legacyGroup := v1.Group("/legacy")
-	//     {
-	//         legacyGroup.GET("/metadata", flexibleAuthMiddleware.Middleware(), legacyHandler.GetUserMetadata)
-	//         legacyGroup.GET("/tracks", flexibleAuthMiddleware.Middleware(), legacyHandler.GetUserTracks)
-	//         legacyGroup.GET("/artists", flexibleAuthMiddleware.Middleware(), legacyHandler.GetUserArtists)
-	//         legacyGroup.GET("/albums", flexibleAuthMiddleware.Middleware(), legacyHandler.GetUserAlbums)
-	//         legacyGroup.GET("/artists/:artist_id/tracks", flexibleAuthMiddleware.Middleware(), legacyHandler.GetTracksByArtist)
-	//         legacyGroup.GET("/albums/:album_id/tracks", flexibleAuthMiddleware.Middleware(), legacyHandler.GetTracksByAlbum)
-	//     }
-	// } else if legacyHandler != nil && devConfig.IsDevelopment {
-	//     log.Println("⚠️  Legacy endpoints not registered - FlexibleAuthMiddleware requires Firebase Auth")
-	// }
+	// Protected endpoints (NIP-98 authenticated)
+	protectedGroup := v1.Group("/protected")
+	protectedGroup.Use(gin.WrapH(nip98Middleware.Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Convert back to Gin context
+		c, _ := gin.CreateTestContext(w)
+		c.Request = r
+		c.Next()
+	}))))
+	{
+		// Add NIP-98 protected endpoints here in the future
+	}
+
+	// Tracks endpoints
+	tracksGroup := v1.Group("/tracks")
+	{
+		// Public endpoints
+		tracksGroup.GET("/:id", tracksHandler.GetTrack)
+
+		// NIP-98 authenticated endpoints
+		tracksGroup.POST("/nostr", gin.WrapH(nip98Middleware.Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			c, _ := gin.CreateTestContext(w)
+			c.Request = r
+			tracksHandler.CreateTrackNostr(c)
+		}))))
+
+		tracksGroup.GET("/my", gin.WrapH(nip98Middleware.Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			c, _ := gin.CreateTestContext(w)
+			c.Request = r
+			tracksHandler.GetMyTracks(c)
+		}))))
+
+		tracksGroup.DELETE("/:trackId", gin.WrapH(nip98Middleware.Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			c, _ := gin.CreateTestContext(w)
+			c.Request = r
+			tracksHandler.DeleteTrack(c)
+		}))))
+	}
+
+	// Legacy endpoints (if PostgreSQL is available)
+	if legacyHandler != nil && flexibleAuthMiddleware != nil {
+		legacyGroup := v1.Group("/legacy")
+		{
+			legacyGroup.GET("/metadata", flexibleAuthMiddleware.Middleware(), legacyHandler.GetUserMetadata)
+			legacyGroup.GET("/tracks", flexibleAuthMiddleware.Middleware(), legacyHandler.GetUserTracks)
+			// Note: Individual artists/albums endpoints would need additional handler methods
+		}
+	} else if legacyHandler != nil && devConfig.IsDevelopment {
+		log.Println("⚠️  Legacy endpoints not registered - FlexibleAuthMiddleware requires Firebase Auth")
+	}
 
 	// Start server
 	log.Printf("Starting server on port %s", port)

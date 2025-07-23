@@ -154,3 +154,47 @@ func (h *LegacyHandler) GetUserTracks(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"tracks": tracks})
 }
+
+// GetUserArtists handles GET /v1/legacy/artists
+func (h *LegacyHandler) GetUserArtists(c *gin.Context) {
+	firebaseUID := c.GetString("firebase_uid")
+	if firebaseUID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication required"})
+		return
+	}
+
+	artists, err := h.postgresService.GetUserArtists(c.Request.Context(), firebaseUID)
+	if err != nil && isDatabaseError(err) {
+		log.Printf("PostgreSQL error getting artists for %s: %v", firebaseUID, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+		return
+	}
+
+	if artists == nil {
+		artists = []models.LegacyArtist{}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"artists": artists})
+}
+
+// GetUserAlbums handles GET /v1/legacy/albums
+func (h *LegacyHandler) GetUserAlbums(c *gin.Context) {
+	firebaseUID := c.GetString("firebase_uid")
+	if firebaseUID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication required"})
+		return
+	}
+
+	albums, err := h.postgresService.GetUserAlbums(c.Request.Context(), firebaseUID)
+	if err != nil && isDatabaseError(err) {
+		log.Printf("PostgreSQL error getting albums for %s: %v", firebaseUID, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+		return
+	}
+
+	if albums == nil {
+		albums = []models.LegacyAlbum{}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"albums": albums})
+}

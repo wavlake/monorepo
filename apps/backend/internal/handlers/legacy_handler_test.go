@@ -490,4 +490,360 @@ var _ = Describe("LegacyHandler", func() {
 			})
 		})
 	})
+
+	Describe("GetUserArtists", func() {
+		var expectedArtists []models.LegacyArtist
+
+		BeforeEach(func() {
+			expectedArtists = testutil.ValidLegacyArtistsList()
+		})
+
+		Context("when user is authenticated", func() {
+			BeforeEach(func() {
+				router.GET("/legacy/artists", func(c *gin.Context) {
+					c.Set("firebase_uid", testFirebaseUID)
+					legacyHandler.GetUserArtists(c)
+				})
+			})
+
+			It("should return user artists when they exist", func() {
+				mockPostgresService.EXPECT().
+					GetUserArtists(gomock.Any(), testFirebaseUID).
+					Return(expectedArtists, nil)
+
+				req := httptest.NewRequest(http.MethodGet, "/legacy/artists", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusOK))
+				
+				var response map[string]interface{}
+				err := testutil.ParseJSONResponse(w.Body, &response)
+				Expect(err).ToNot(HaveOccurred())
+				
+				Expect(response).To(HaveKey("artists"))
+				artists := response["artists"].([]interface{})
+				Expect(artists).To(HaveLen(2))
+				
+				// Verify artist data structure
+				firstArtist := artists[0].(map[string]interface{})
+				Expect(firstArtist["name"]).To(Equal("Test Artist"))
+				Expect(firstArtist["id"]).To(Equal("artist-123"))
+			})
+
+			It("should return empty array when user has no artists", func() {
+				mockPostgresService.EXPECT().
+					GetUserArtists(gomock.Any(), testFirebaseUID).
+					Return([]models.LegacyArtist{}, nil)
+
+				req := httptest.NewRequest(http.MethodGet, "/legacy/artists", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusOK))
+				
+				var response map[string]interface{}
+				err := testutil.ParseJSONResponse(w.Body, &response)
+				Expect(err).ToNot(HaveOccurred())
+				
+				Expect(response).To(HaveKey("artists"))
+				artists := response["artists"].([]interface{})
+				Expect(artists).To(BeEmpty())
+			})
+
+			It("should return empty array when user not found (non-database error)", func() {
+				mockPostgresService.EXPECT().
+					GetUserArtists(gomock.Any(), testFirebaseUID).
+					Return(nil, sql.ErrNoRows)
+
+				req := httptest.NewRequest(http.MethodGet, "/legacy/artists", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusOK))
+				
+				var response map[string]interface{}
+				err := testutil.ParseJSONResponse(w.Body, &response)
+				Expect(err).ToNot(HaveOccurred())
+				
+				Expect(response).To(HaveKey("artists"))
+				artists := response["artists"].([]interface{})
+				Expect(artists).To(BeEmpty())
+			})
+
+			It("should return database error when query fails with database error", func() {
+				mockPostgresService.EXPECT().
+					GetUserArtists(gomock.Any(), testFirebaseUID).
+					Return(nil, errors.New("relation artists does not exist"))
+
+				req := httptest.NewRequest(http.MethodGet, "/legacy/artists", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusInternalServerError))
+				
+				var response map[string]interface{}
+				err := testutil.ParseJSONResponse(w.Body, &response)
+				Expect(err).ToNot(HaveOccurred())
+				
+				Expect(response).To(HaveKey("error"))
+				Expect(response["error"]).To(Equal("database error"))
+			})
+
+			It("should handle connection timeout errors", func() {
+				mockPostgresService.EXPECT().
+					GetUserArtists(gomock.Any(), testFirebaseUID).
+					Return(nil, errors.New("connection timeout"))
+
+				req := httptest.NewRequest(http.MethodGet, "/legacy/artists", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusInternalServerError))
+				
+				var response map[string]interface{}
+				err := testutil.ParseJSONResponse(w.Body, &response)
+				Expect(err).ToNot(HaveOccurred())
+				
+				Expect(response["error"]).To(Equal("database error"))
+			})
+
+			It("should handle network errors gracefully", func() {
+				mockPostgresService.EXPECT().
+					GetUserArtists(gomock.Any(), testFirebaseUID).
+					Return(nil, errors.New("network unreachable"))
+
+				req := httptest.NewRequest(http.MethodGet, "/legacy/artists", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusInternalServerError))
+			})
+
+			It("should handle permission denied errors", func() {
+				mockPostgresService.EXPECT().
+					GetUserArtists(gomock.Any(), testFirebaseUID).
+					Return(nil, errors.New("permission denied on table artists"))
+
+				req := httptest.NewRequest(http.MethodGet, "/legacy/artists", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+
+		Context("when user is not authenticated", func() {
+			BeforeEach(func() {
+				router.GET("/legacy/artists", legacyHandler.GetUserArtists)
+			})
+
+			It("should return unauthorized when firebase_uid is missing", func() {
+				req := httptest.NewRequest(http.MethodGet, "/legacy/artists", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusUnauthorized))
+				
+				var response map[string]interface{}
+				err := testutil.ParseJSONResponse(w.Body, &response)
+				Expect(err).ToNot(HaveOccurred())
+				
+				Expect(response).To(HaveKey("error"))
+				Expect(response["error"]).To(Equal("authentication required"))
+			})
+
+			It("should return unauthorized when firebase_uid is empty", func() {
+				router = gin.New()
+				router.GET("/legacy/artists", func(c *gin.Context) {
+					c.Set("firebase_uid", "")
+					legacyHandler.GetUserArtists(c)
+				})
+
+				req := httptest.NewRequest(http.MethodGet, "/legacy/artists", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusUnauthorized))
+			})
+		})
+	})
+
+	Describe("GetUserAlbums", func() {
+		var expectedAlbums []models.LegacyAlbum
+
+		BeforeEach(func() {
+			expectedAlbums = testutil.ValidLegacyAlbumsList()
+		})
+
+		Context("when user is authenticated", func() {
+			BeforeEach(func() {
+				router.GET("/legacy/albums", func(c *gin.Context) {
+					c.Set("firebase_uid", testFirebaseUID)
+					legacyHandler.GetUserAlbums(c)
+				})
+			})
+
+			It("should return user albums when they exist", func() {
+				mockPostgresService.EXPECT().
+					GetUserAlbums(gomock.Any(), testFirebaseUID).
+					Return(expectedAlbums, nil)
+
+				req := httptest.NewRequest(http.MethodGet, "/legacy/albums", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusOK))
+				
+				var response map[string]interface{}
+				err := testutil.ParseJSONResponse(w.Body, &response)
+				Expect(err).ToNot(HaveOccurred())
+				
+				Expect(response).To(HaveKey("albums"))
+				albums := response["albums"].([]interface{})
+				Expect(albums).To(HaveLen(2))
+				
+				// Verify album data structure
+				firstAlbum := albums[0].(map[string]interface{})
+				Expect(firstAlbum["title"]).To(Equal("Test Album"))
+				Expect(firstAlbum["id"]).To(Equal("album-123"))
+			})
+
+			It("should return empty array when user has no albums", func() {
+				mockPostgresService.EXPECT().
+					GetUserAlbums(gomock.Any(), testFirebaseUID).
+					Return([]models.LegacyAlbum{}, nil)
+
+				req := httptest.NewRequest(http.MethodGet, "/legacy/albums", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusOK))
+				
+				var response map[string]interface{}
+				err := testutil.ParseJSONResponse(w.Body, &response)
+				Expect(err).ToNot(HaveOccurred())
+				
+				Expect(response).To(HaveKey("albums"))
+				albums := response["albums"].([]interface{})
+				Expect(albums).To(BeEmpty())
+			})
+
+			It("should return empty array when user not found (non-database error)", func() {
+				mockPostgresService.EXPECT().
+					GetUserAlbums(gomock.Any(), testFirebaseUID).
+					Return(nil, sql.ErrNoRows)
+
+				req := httptest.NewRequest(http.MethodGet, "/legacy/albums", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusOK))
+				
+				var response map[string]interface{}
+				err := testutil.ParseJSONResponse(w.Body, &response)
+				Expect(err).ToNot(HaveOccurred())
+				
+				Expect(response).To(HaveKey("albums"))
+				albums := response["albums"].([]interface{})
+				Expect(albums).To(BeEmpty())
+			})
+
+			It("should return database error when query fails with database error", func() {
+				mockPostgresService.EXPECT().
+					GetUserAlbums(gomock.Any(), testFirebaseUID).
+					Return(nil, errors.New("relation albums does not exist"))
+
+				req := httptest.NewRequest(http.MethodGet, "/legacy/albums", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusInternalServerError))
+				
+				var response map[string]interface{}
+				err := testutil.ParseJSONResponse(w.Body, &response)
+				Expect(err).ToNot(HaveOccurred())
+				
+				Expect(response).To(HaveKey("error"))
+				Expect(response["error"]).To(Equal("database error"))
+			})
+
+			It("should handle connection timeout errors", func() {
+				mockPostgresService.EXPECT().
+					GetUserAlbums(gomock.Any(), testFirebaseUID).
+					Return(nil, errors.New("connection timeout"))
+
+				req := httptest.NewRequest(http.MethodGet, "/legacy/albums", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusInternalServerError))
+				
+				var response map[string]interface{}
+				err := testutil.ParseJSONResponse(w.Body, &response)
+				Expect(err).ToNot(HaveOccurred())
+				
+				Expect(response["error"]).To(Equal("database error"))
+			})
+
+			It("should handle network errors gracefully", func() {
+				mockPostgresService.EXPECT().
+					GetUserAlbums(gomock.Any(), testFirebaseUID).
+					Return(nil, errors.New("network unreachable"))
+
+				req := httptest.NewRequest(http.MethodGet, "/legacy/albums", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusInternalServerError))
+			})
+
+			It("should handle permission denied errors", func() {
+				mockPostgresService.EXPECT().
+					GetUserAlbums(gomock.Any(), testFirebaseUID).
+					Return(nil, errors.New("permission denied on table albums"))
+
+				req := httptest.NewRequest(http.MethodGet, "/legacy/albums", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusInternalServerError))
+			})
+		})
+
+		Context("when user is not authenticated", func() {
+			BeforeEach(func() {
+				router.GET("/legacy/albums", legacyHandler.GetUserAlbums)
+			})
+
+			It("should return unauthorized when firebase_uid is missing", func() {
+				req := httptest.NewRequest(http.MethodGet, "/legacy/albums", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusUnauthorized))
+				
+				var response map[string]interface{}
+				err := testutil.ParseJSONResponse(w.Body, &response)
+				Expect(err).ToNot(HaveOccurred())
+				
+				Expect(response).To(HaveKey("error"))
+				Expect(response["error"]).To(Equal("authentication required"))
+			})
+
+			It("should return unauthorized when firebase_uid is empty", func() {
+				router = gin.New()
+				router.GET("/legacy/albums", func(c *gin.Context) {
+					c.Set("firebase_uid", "")
+					legacyHandler.GetUserAlbums(c)
+				})
+
+				req := httptest.NewRequest(http.MethodGet, "/legacy/albums", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				Expect(w.Code).To(Equal(http.StatusUnauthorized))
+			})
+		})
+	})
 })

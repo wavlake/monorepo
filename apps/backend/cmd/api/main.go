@@ -425,7 +425,8 @@ func main() {
 		{
 			legacyGroup.GET("/metadata", flexibleAuthMiddleware.Middleware(), legacyHandler.GetUserMetadata)
 			legacyGroup.GET("/tracks", flexibleAuthMiddleware.Middleware(), legacyHandler.GetUserTracks)
-			// Note: Individual artists/albums endpoints would need additional handler methods
+			legacyGroup.GET("/artists", flexibleAuthMiddleware.Middleware(), legacyHandler.GetUserArtists)
+			legacyGroup.GET("/albums", flexibleAuthMiddleware.Middleware(), legacyHandler.GetUserAlbums)
 		}
 	} else if legacyHandler != nil && devConfig.IsDevelopment {
 		log.Println("⚠️  Legacy endpoints not registered - FlexibleAuthMiddleware requires Firebase Auth")

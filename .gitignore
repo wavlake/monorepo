@@ -6,9 +6,13 @@ apps/backend/fileserver
 apps/backend/bin/
 *.exe
 
-# Go build cache
+# Go build cache and test coverage
 apps/backend/coverage.out
 apps/backend/coverage.html
+apps/backend/coverage_*.out
+apps/backend/handlers_coverage.out
+apps/backend/coverage_full.out
+apps/backend/coverage_all.out
 
 # Frontend coverage
 apps/frontend/coverage/

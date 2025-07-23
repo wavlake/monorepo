@@ -217,11 +217,21 @@ tasks:
       - cd {{.BACKEND_DIR}} && ginkgo -r --randomizeAllSpecs
 
   test:integration:
-    desc: "Run integration tests"
+    desc: "Run integration tests (against local services)"
     cmds:
       - task: test:services:start
       - cd {{.BACKEND_DIR}} && ginkgo -r -tags=integration ./tests/integration
       - task: test:services:stop
+
+  test:integration:staging:
+    desc: "Run all integration tests against staging environment"
+    cmds:
+      - |
+        cd {{.BACKEND_DIR}}
+        echo "Running integration tests against staging..."
+        STAGING_URL=https://api-staging-cgi4gylh7q-uc.a.run.app \
+        GCP_PROJECT=wavlake-alpha \
+        go test -v ./tests/integration -run "TestStaging.*Suite" -timeout 10m
 
   test:e2e:
     desc: "Run end-to-end tests"
@@ -419,6 +429,47 @@ tasks:
     deps: [build:docker]
     cmds:
       - gcloud run deploy wavlake-api --image wavlake/backend --platform managed
+
+  deploy:staging:
+    desc: "Deploy backend to staging environment (api-staging)"
+    deps: [test:unit:backend]
+    cmds:
+      - ./scripts/deploy-staging.sh
+      - task: test:integration:staging
+
+  deploy:staging:build:
+    desc: "Build and push staging Docker image (via Cloud Build)"
+    cmds:
+      - |
+        PROJECT_ID=${PROJECT_ID:-wavlake-alpha}
+        echo "Note: Use 'task deploy:staging' for full build + deploy pipeline."
+        echo "Building image directly with Docker..."
+        cd {{.BACKEND_DIR}}
+        docker build -t staging-local-build .
+        echo "✅ Local build complete. For full deployment: task deploy:staging"
+
+  deploy:staging:test:
+    desc: "Run integration tests against staging environment"
+    cmds:
+      - |
+        STAGING_URL=${STAGING_URL:-https://api-staging-wavlake-alpha.run.app}
+        GCP_PROJECT=${GCP_PROJECT:-wavlake-alpha}
+        echo "Testing staging deployment at: $STAGING_URL"
+        echo "Project: $GCP_PROJECT"
+        
+        # Basic connectivity test
+        if curl -f -s "$STAGING_URL/heartbeat" > /dev/null; then
+          echo "✅ Basic connectivity test passed"
+          
+          # Run comprehensive integration tests
+          cd {{.BACKEND_DIR}}
+          STAGING_URL="$STAGING_URL" GCP_PROJECT="$GCP_PROJECT" \
+            go test -v ./tests/integration -run TestStagingEnvironmentSuite -timeout 5m
+        else
+          echo "❌ Staging heartbeat failed - service may not be ready"
+          echo "Try: curl -v $STAGING_URL/heartbeat"
+          exit 1
+        fi
 
   deploy:
     desc: "Deploy all applications"

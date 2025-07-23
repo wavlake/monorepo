@@ -1,0 +1,96 @@
+name: Manual Staging Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      staging_url:
+        description: 'Staging URL to test (leave empty for default)'
+        required: false
+        default: 'https://api-staging-cgi4gylh7q-uc.a.run.app'
+      test_suite:
+        description: 'Test suite to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+        - all
+        - staging-environment
+        - staging-api
+        - health-check
+
+env:
+  PROJECT_ID: wavlake-alpha
+
+jobs:
+  manual-test:
+    name: Manual Staging Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+        cache-dependency-path: apps/backend/go.sum
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Determine staging URL
+      id: staging-url
+      run: |
+        if [ -n "${{ github.event.inputs.staging_url }}" ]; then
+          STAGING_URL="${{ github.event.inputs.staging_url }}"
+        else
+          STAGING_URL="https://api-staging-cgi4gylh7q-uc.a.run.app"
+        fi
+        echo "staging_url=$STAGING_URL" >> $GITHUB_OUTPUT
+        echo "Testing against: $STAGING_URL"
+
+    - name: Run health check
+      if: github.event.inputs.test_suite == 'health-check' || github.event.inputs.test_suite == 'all'
+      run: |
+        echo "🏥 Running health check..."
+        response=$(curl -s -w "%{http_code}" "${{ steps.staging-url.outputs.staging_url }}/heartbeat")
+        echo "Response: $response"
+        if echo "$response" | grep -q '"status":"ok"'; then
+          echo "✅ Health check passed"
+        else
+          echo "❌ Health check failed"
+          exit 1
+        fi
+
+    - name: Run staging environment tests
+      if: github.event.inputs.test_suite == 'staging-environment' || github.event.inputs.test_suite == 'all'
+      working-directory: apps/backend
+      env:
+        STAGING_URL: ${{ steps.staging-url.outputs.staging_url }}
+        GCP_PROJECT: ${{ env.PROJECT_ID }}
+      run: |
+        echo "🧪 Running staging environment tests..."
+        go test -v ./tests/integration -run TestStagingEnvironmentSuite -timeout 10m
+
+    - name: Run staging API tests
+      if: github.event.inputs.test_suite == 'staging-api' || github.event.inputs.test_suite == 'all'
+      working-directory: apps/backend
+      env:
+        STAGING_URL: ${{ steps.staging-url.outputs.staging_url }}
+        GCP_PROJECT: ${{ env.PROJECT_ID }}
+      run: |
+        echo "🔧 Running staging API tests..."
+        go test -v ./tests/integration -run TestStagingAPISuite -timeout 10m
+
+    - name: Test summary
+      run: |
+        echo "## 🎯 Test Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Staging URL:** ${{ steps.staging-url.outputs.staging_url }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Test Suite:** ${{ github.event.inputs.test_suite }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status:** ✅ All tests passed" >> $GITHUB_STEP_SUMMARY

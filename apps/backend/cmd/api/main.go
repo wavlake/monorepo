@@ -180,7 +180,8 @@ func main() {
 	storageService := realStorageService
 
 	// Initialize remaining services
-	nostrTrackService := services.NewNostrTrackService(firestoreClient, storageService)
+	pathConfig := utils.GetStoragePathConfig()
+	nostrTrackService := services.NewNostrTrackService(firestoreClient, storageService, pathConfig)
 	audioProcessor := utils.NewAudioProcessor(tempDir)
 	processingService := services.NewProcessingService(storageService, nostrTrackService, audioProcessor, tempDir)
 

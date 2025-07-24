@@ -13,6 +13,8 @@ apps/backend/coverage_*.out
 apps/backend/handlers_coverage.out
 apps/backend/coverage_full.out
 apps/backend/coverage_all.out
+apps/backend/coverprofile.out
+*.coverprofile
 
 # Frontend coverage
 apps/frontend/coverage/

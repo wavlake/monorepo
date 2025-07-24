@@ -270,3 +270,159 @@ const (
 	TestArtistID    = "artist-123"
 	TestAlbumID     = "album-123"
 )
+
+// Additional fixtures for comprehensive testing
+
+// ValidUser returns a valid User for testing
+func ValidUser() models.User {
+	return models.User{
+		ID:          "user-123",
+		Email:       TestEmail,
+		DisplayName: "Test User",
+		ProfilePic:  "https://example.com/profile.jpg",
+		NostrPubkey: TestPubkey,
+		CreatedAt:   time.Now().Add(-24 * time.Hour),
+		UpdatedAt:   time.Now(),
+	}
+}
+
+// ValidTrack returns a valid Track for testing
+func ValidTrack() models.Track {
+	return models.Track{
+		ID:           TestTrackID,
+		Title:        "Test Track",
+		Artist:       "Test Artist",
+		Album:        "Test Album",
+		Duration:     180,
+		AudioURL:     "https://storage.googleapis.com/test-bucket/track.mp3",
+		ArtworkURL:   "https://example.com/artwork.jpg",
+		Genre:        "Rock",
+		PriceMsat:    1000,
+		OwnerID:      "user-123",
+		NostrEventID: "nostr-event-123",
+		CreatedAt:    time.Now().Add(-24 * time.Hour),
+		UpdatedAt:    time.Now(),
+	}
+}
+
+// Processing and File fixtures
+
+// ValidFileUploadToken returns a valid FileUploadToken for testing
+func ValidFileUploadToken() models.FileUploadToken {
+	return models.FileUploadToken{
+		Token:     "upload-token-abc123",
+		ExpiresAt: time.Now().Add(1 * time.Hour),
+		Path:      "/uploads/user-123/track.mp3",
+		UserID:    "user-123",
+		CreatedAt: time.Now(),
+	}
+}
+
+// ValidFileMetadata returns a valid FileMetadata for testing
+func ValidFileMetadata() models.FileMetadata {
+	return models.FileMetadata{
+		Name:        "track.mp3",
+		Size:        5242880,
+		ContentType: "audio/mpeg",
+		Bucket:      "test-bucket",
+		URL:         "https://storage.googleapis.com/test-bucket/track.mp3",
+		Metadata: map[string]string{
+			"user_id":  "user-123",
+			"track_id": TestTrackID,
+		},
+		CreatedAt: time.Now().Add(-1 * time.Hour),
+		UpdatedAt: time.Now(),
+	}
+}
+
+// ValidProcessingStatus returns a valid ProcessingStatus for testing
+func ValidProcessingStatus() models.ProcessingStatus {
+	return models.ProcessingStatus{
+		TrackID:     TestTrackID,
+		Status:      "completed",
+		Progress:    100,
+		Message:     "Processing completed successfully",
+		StartedAt:   time.Now().Add(-10 * time.Minute),
+		CompletedAt: time.Now().Add(-2 * time.Minute),
+	}
+}
+
+// ValidAudioMetadata returns a valid AudioMetadata for testing
+func ValidAudioMetadata() models.AudioMetadata {
+	return models.AudioMetadata{
+		Duration:    180,
+		Bitrate:     320,
+		SampleRate:  44100,
+		Channels:    2,
+		Format:      "mp3",
+		Title:       "Test Track",
+		Artist:      "Test Artist",
+		Album:       "Test Album",
+		Genre:       "Rock",
+		Year:        2024,
+		TrackNumber: 1,
+		Tags: map[string]string{
+			"encoder": "LAME",
+			"comment": "Test track",
+		},
+	}
+}
+
+// ValidSystemInfo returns a valid SystemInfo for testing
+func ValidSystemInfo() models.SystemInfo {
+	return models.SystemInfo{
+		Version:     "1.0.0-test",
+		Environment: "test",
+		Uptime:      "1h 30m",
+		Memory: map[string]string{
+			"total": "8GB",
+			"used":  "2GB",
+		},
+		Database: map[string]string{
+			"status": "healthy",
+		},
+		Storage: map[string]string{
+			"status": "healthy",
+			"bucket": "test-bucket",
+		},
+		Services: map[string]string{
+			"firebase": "connected",
+		},
+	}
+}
+
+// ValidWebhookPayload returns a valid WebhookPayload for testing
+func ValidWebhookPayload() models.WebhookPayload {
+	return models.WebhookPayload{
+		Type:      "storage",
+		Source:    "cloud_storage",
+		EventType: "object_uploaded",
+		Data: map[string]interface{}{
+			"bucket":      "test-bucket",
+			"object_name": "uploads/track.mp3",
+		},
+		Timestamp: time.Now(),
+		Signature: "test-signature",
+	}
+}
+
+// Error case fixtures
+
+// ExpiredFileUploadToken returns an expired FileUploadToken for testing
+func ExpiredFileUploadToken() models.FileUploadToken {
+	token := ValidFileUploadToken()
+	token.ExpiresAt = time.Now().Add(-1 * time.Hour)
+	return token
+}
+
+// FailedProcessingStatus returns a failed ProcessingStatus for testing
+func FailedProcessingStatus() models.ProcessingStatus {
+	return models.ProcessingStatus{
+		TrackID:   TestTrackID,
+		Status:    "failed",
+		Progress:  50,
+		Message:   "Processing failed",
+		Error:     "invalid audio format",
+		StartedAt: time.Now().Add(-10 * time.Minute),
+	}
+}

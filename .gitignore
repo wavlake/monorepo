@@ -24,6 +24,12 @@ apps/backend/dev-storage/
 .env.local
 .DS_Store
 
+# Firebase emulator files
+*-debug.log
+firestore-debug.log
+firebase-debug.log
+ui-debug.log
+
 # IDE files
 .vscode/
 .idea/

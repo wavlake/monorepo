@@ -197,7 +197,13 @@ func (suite *AudioPipelineTestSuite) TestAudioCompression() {
 	outputPath := filepath.Join(suite.tempDir, "compressed.mp3")
 	
 	// Test CompressAudio - this will fail with dummy file but should handle error gracefully
-	err := suite.audioProcessor.CompressAudio(suite.ctx, suite.testAudioFile, outputPath)
+	options := models.CompressionOption{
+		Bitrate:    128,
+		Format:     "mp3",
+		Quality:    "medium",
+		SampleRate: 44100,
+	}
+	err := suite.audioProcessor.CompressAudio(suite.ctx, suite.testAudioFile, outputPath, options)
 	
 	if err != nil {
 		// This is expected for our dummy file

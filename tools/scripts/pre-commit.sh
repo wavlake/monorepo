@@ -41,6 +41,7 @@ has_staged_changes() {
 FRONTEND_CHANGED=false
 BACKEND_CHANGED=false
 TYPES_CHANGED=false
+SERVICE_LEVEL_CHANGED=false
 
 # Check what has changed
 if has_staged_changes "apps/frontend"; then
@@ -56,6 +57,18 @@ fi
 if has_staged_changes "packages/shared-types" || has_staged_changes "apps/backend/internal/models"; then
     TYPES_CHANGED=true
     print_status "Type definitions may have changed"
+fi
+
+# Check for service-level changes that require integration tests
+SERVICE_PATHS="apps/backend/internal/services|apps/backend/internal/handlers|apps/backend/internal/utils|apps/backend/tests/integration"
+if git diff --cached --name-only | grep -E "($SERVICE_PATHS)" > /dev/null; then
+    SERVICE_LEVEL_CHANGED=true
+    print_status "Service-level changes detected - integration tests will be required"
+    
+    # List the affected service areas for visibility
+    CHANGED_SERVICES=$(git diff --cached --name-only | grep -E "($SERVICE_PATHS)" | cut -d'/' -f1-4 | sort -u)
+    echo "📋 Affected areas:"
+    echo "$CHANGED_SERVICES" | sed 's/^/  - /'
 fi
 
 # Regenerate types if needed
@@ -129,6 +142,24 @@ if [ "$BACKEND_CHANGED" = true ]; then
     print_status "Backend tests passed"
 fi
 
+# Run integration tests for service-level changes
+if [ "$SERVICE_LEVEL_CHANGED" = true ]; then
+    print_warning "Service-level changes detected - running integration tests..."
+    
+    echo "🔗 Starting integration tests..."
+    
+    # Run integration tests with proper error handling
+    if task test:integration 2>/dev/null; then
+        print_status "Integration tests passed"
+    else
+        print_error "Integration tests failed"
+        print_warning "Service-level changes require integration tests to pass"
+        print_warning "Run 'task test:integration' to see detailed output"
+        print_warning "Or use 'task commit:safe' for comprehensive testing"
+        exit 1
+    fi
+fi
+
 # Build check
 echo "🏗️  Verifying builds..."
 
@@ -188,4 +219,5 @@ echo "📝 Commit includes:"
 [ "$FRONTEND_CHANGED" = true ] && echo "  - Frontend changes"
 [ "$BACKEND_CHANGED" = true ] && echo "  - Backend changes"  
 [ "$TYPES_CHANGED" = true ] && echo "  - Type definition updates"
+[ "$SERVICE_LEVEL_CHANGED" = true ] && echo "  - Service-level changes (integration tested)"
 echo ""

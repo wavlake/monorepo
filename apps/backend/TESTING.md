@@ -1,5 +1,27 @@
 # Backend Unit Testing Implementation Plan
 
+## ⚠️ CRITICAL STATUS UPDATE - July 2025
+
+### Current Coverage Analysis
+**Target**: 80%+ coverage | **Current**: 22.4% coverage | **GAP**: -57.6 percentage points
+
+| **Layer** | **Target** | **Current** | **Status** |
+|-----------|------------|-------------|------------|
+| **Overall** | 80%+ | **22.4%** | ❌ **CRITICAL GAP** |
+| **Handlers** | 80%+ | **48.1%** | ⚠️ **MODERATE GAP** |
+| **Services** | 85%+ | **4.2%** | ❌ **SEVERE GAP** |
+
+### Test Execution Status
+- **Tests Passing**: 225 total (96 handlers + 129 services)
+- **Test Files**: 25/26 exist
+- **Execution Time**: <30s ✅
+- **Infrastructure**: Ginkgo + Gomega configured ✅
+
+### Reality Check vs Plan
+The existing plan below is **OUTDATED** and doesn't reflect actual coverage gaps. **Immediate action required** to achieve 80%+ target.
+
+---
+
 ## Overview
 Comprehensive unit testing implementation for the Wavlake backend, targeting 80%+ coverage with TDD practices using Ginkgo v2 + Gomega + GoMock.
 
@@ -206,3 +228,96 @@ Comprehensive unit testing implementation for the Wavlake backend, targeting 80%
 - **Handler Layer**: All 6 handler methods across 3 handler classes tested (100%)
 - **Production Routes**: All 10 production API endpoints have comprehensive test coverage
 - **Risk Reduction**: Eliminated critical gaps in PostgreSQL integration testing
+
+---
+
+## 🚨 URGENT: Actionable Recommendations (Based on July 2025 Analysis)
+
+### **Priority 1: Address Services Coverage Crisis (4.2% → 85%)**
+**Impact**: Services layer has massive coverage gap (-80.8 percentage points)
+
+**Immediate Actions**:
+1. **Activate Mock Generation**: Services tests exist but use outdated patterns
+   ```bash
+   task mocks:generate  # Generate proper mocks
+   cd internal/services && go generate ./...
+   ```
+
+2. **Implement Missing Services Coverage**:
+   - `UserService`: Business logic core (currently minimal coverage)
+   - `NostrTrackService`: Track management (interface-only tests)
+   - `ProcessingService`: Audio pipeline (completely uncovered)
+
+3. **Create Missing Infrastructure**:
+   ```bash
+   mkdir -p tests/mocks tests/testutil
+   # Implement fixtures.go for reusable test data
+   ```
+
+### **Priority 2: Fix Disabled/Skipped Tests**
+**Current Issues Blocking Coverage**:
+
+1. **User Service Integration** (`user_service_test.go:204`):
+   ```go
+   Skip("Integration tests to be implemented with Firebase emulators")
+   ```
+   **Fix**: Enable Firebase emulator integration or convert to proper unit tests with mocks
+
+2. **Audio Pipeline Tests** (11 tests skipped):
+   ```bash
+   # Install missing dependencies
+   brew install ffmpeg  # or equivalent
+   ```
+
+3. **Enhanced Legacy Handler**: Empty test suite marked as TODO
+   - Either implement missing methods or remove placeholder
+
+### **Priority 3: Expand Handler Coverage (48.1% → 80%)**
+**Current Status**: Tests exist but coverage incomplete
+
+**Actions**:
+- Add edge cases and error scenarios to existing handler tests
+- Focus on authentication and validation paths
+- Expand error handling coverage
+
+### **Priority 4: Infrastructure Dependencies**
+**Missing Components Blocking Progress**:
+
+1. **Test Fixtures**: Create `tests/testutil/fixtures.go`
+2. **Structured Mocks**: Organize `tests/mocks/` directory
+3. **Environment Setup**: Fix conditional test skips
+
+### **Critical Timeline to 80% Coverage**
+
+**Week 1**: Services Layer Emergency (4.2% → 40%)
+- Fix UserService unit test implementation
+- Enable disabled tests
+- Implement ProcessingService tests
+
+**Week 2**: Handler Enhancement (48.1% → 65%)
+- Add missing edge cases
+- Expand error scenario coverage
+- Fix authentication test gaps
+
+**Week 3**: Infrastructure & Utilities (65% → 80%+)
+- Audio processing tests (install ffmpeg)
+- Authentication modules
+- Utility functions
+
+### **Quality Gates & Monitoring**
+```bash
+# Daily coverage checks
+task coverage:backend
+# Target: +5 percentage points per week minimum
+
+# Ensure all tests pass
+task test:unit:backend
+```
+
+### **Success Metrics**
+- **Week 1 Target**: 40% overall coverage
+- **Week 2 Target**: 65% overall coverage  
+- **Week 3 Target**: 80%+ overall coverage
+- **Services Must Hit**: 85%+ (currently critical at 4.2%)
+
+**Status**: 🚨 **CRITICAL ACTION REQUIRED** - Coverage gaps are severe and require immediate systematic implementation of above recommendations to meet 80%+ target.

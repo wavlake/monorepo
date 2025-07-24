@@ -122,7 +122,7 @@ task build           # Production builds (requires tests to pass)
 
 **Test Services (Docker Compose)**:
 - Firebase emulators (Auth, Firestore, Storage) on ports 9099, 8080, 9199
-- Local Nostr relay on port 7777
+- Local Nostr relay on port 10547
 - Test PostgreSQL database on port 5433
 
 ### Nostr Integration
@@ -198,7 +198,7 @@ task quality:check            # Comprehensive: lint + test + coverage + build
 ```bash
 FIREBASE_PROJECT_ID=your-project-id
 GOOGLE_CLOUD_PROJECT=your-gcp-project
-DEFAULT_RELAY_URLS=ws://localhost:7777,wss://relay.wavlake.com
+DEFAULT_RELAY_URLS=ws://localhost:10547,wss://relay.wavlake.com
 ```
 
 ### Coverage Targets

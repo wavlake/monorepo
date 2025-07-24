@@ -81,7 +81,7 @@ The staging deployment uses these environment variables:
 DEVELOPMENT=false
 GCP_PROJECT=wavlake-alpha  # or your project ID
 ENVIRONMENT=staging
-PORT=8080
+BACKEND_PORT=3000
 GCS_BUCKET_NAME=wavlake-alpha-staging-storage  # Will be created if needed
 ```
 

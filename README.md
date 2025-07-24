@@ -37,6 +37,10 @@ monorepo/
 git clone <repository-url>
 cd monorepo
 
+# Configure your environment:
+cp .env.example .env.local
+# Edit .env.local and uncomment the setup section you want (see file for details)
+
 # Initialize everything (installs dependencies, generates types, sets up testing)
 task setup
 
@@ -219,36 +223,179 @@ describe('TrackPlayer', () => {
 });
 ```
 
-## 🔐 Environment Setup
+## 🔐 Environment Configuration
 
-### Environment Variables
+### Quick Start for New Developers
 
-Create `.env.local` in the root:
+The monorepo supports three environment configurations to match your development needs. Copy the template and choose your setup:
 
 ```bash
-# Firebase
-FIREBASE_PROJECT_ID=your-project-id
-FIREBASE_API_KEY=your-api-key
+# Copy the template
+cp .env.example .env.local
 
-# GCP  
-GOOGLE_CLOUD_PROJECT=your-gcp-project
-GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account.json
-
-# Nostr
-DEFAULT_RELAY_URLS=ws://localhost:7777,wss://relay.wavlake.com
-
-# Development
-NODE_ENV=development
-GO_ENV=development
+# Edit .env.local and uncomment ONE of the three setup sections
 ```
 
-### Firebase Setup
+### Configuration Options
+
+#### 1. Minimal Setup (Recommended for New Developers)
+**Best for**: First-time setup, quick development, no external dependencies
+
+```bash
+DEVELOPMENT=true
+SKIP_AUTH=true
+MOCK_STORAGE=true
+MOCK_STORAGE_PATH=./dev-storage
+FILE_SERVER_URL=http://localhost:8081
+DEFAULT_RELAY_URLS=ws://localhost:10547
+LOG_REQUESTS=true
+LOG_RESPONSES=true
+```
+
+**What you get**:
+- ✅ No Firebase/GCP setup required
+- ✅ Authentication bypassed for development
+- ✅ Local file storage in `./dev-storage`
+- ✅ Local Nostr relay only
+- ✅ Detailed request/response logging
+
+**Start developing**:
+```bash
+task setup
+task dev:tdd
+```
+
+#### 2. Firebase Emulator Setup
+**Best for**: Full local development with realistic auth/database behavior
+
+```bash
+DEVELOPMENT=true
+FIREBASE_PROJECT_ID=demo-project
+GOOGLE_CLOUD_PROJECT=demo-project
+FIRESTORE_EMULATOR_HOST=localhost:8080
+FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
+FIREBASE_STORAGE_EMULATOR_HOST=localhost:9199
+DEFAULT_RELAY_URLS=ws://localhost:10547
+LOG_REQUESTS=true
+LOG_RESPONSES=true
+```
+
+**What you get**:
+- ✅ Real Firebase Auth behavior (with emulator)
+- ✅ Real Firestore database (with emulator)  
+- ✅ Real Firebase Storage (with emulator)
+- ✅ No internet required after setup
+- ✅ Realistic development environment
+
+**Setup steps**:
+```bash
+# Install Firebase CLI
+npm install -g firebase-tools
+
+# Start emulators (in separate terminal)
+task firebase:emulators
+
+# Start development
+task dev:tdd
+```
+
+#### 3. Production Services Setup (Advanced)
+**Best for**: Testing integration with real GCP services, advanced development
+
+```bash
+DEVELOPMENT=true
+FIREBASE_PROJECT_ID=your-firebase-project-id
+GOOGLE_CLOUD_PROJECT=your-gcp-project-id
+GCS_BUCKET_NAME=your-storage-bucket
+PROD_POSTGRES_CONNECTION_STRING_RO=postgresql://user:pass@host:5432/db
+DEFAULT_RELAY_URLS=ws://localhost:10547,wss://relay.wavlake.com
+LOG_REQUESTS=true
+```
+
+**What you get**:
+- ✅ Real Firebase Auth and Firestore
+- ✅ Real GCP Cloud Storage
+- ✅ Production database (read-only)
+- ✅ Remote and local Nostr relays
+- ⚠️ Requires GCP project and credentials
+
+**Setup steps**:
+```bash
+# Authenticate with GCP
+gcloud auth login
+gcloud config set project your-project-id
+
+# Set up service account (if needed)
+export GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account-key.json
+
+# Start development
+task dev:tdd
+```
+
+### Environment Variable Reference
+
+All available environment variables:
+
+| Variable | Purpose | Default | Required |
+|----------|---------|---------|----------|
+| `DEVELOPMENT` | Enable development mode | `false` | ✅ |
+| `BACKEND_PORT` | Backend server port | `3000` | ❌ |
+| `VITE_PORT` | Frontend dev server port (Vite standard) | `8080` | ❌ |
+| `SKIP_AUTH` | Bypass authentication | `false` | ❌ |
+| `MOCK_STORAGE` | Use local file storage | `false` | ❌ |
+| `MOCK_STORAGE_PATH` | Local storage directory | `./dev-storage` | ❌ |
+| `FILE_SERVER_URL` | File server endpoint | `http://localhost:8081` | ❌ |
+| `FIREBASE_PROJECT_ID` | Firebase project ID | - | Conditional |
+| `GOOGLE_CLOUD_PROJECT` | GCP project ID | - | Conditional |
+| `GCS_BUCKET_NAME` | Cloud Storage bucket | - | Conditional |
+| `DEFAULT_RELAY_URLS` | Nostr relay URLs | `ws://localhost:10547` | ❌ |
+| `LOG_REQUESTS` | Log HTTP requests | `false` | ❌ |
+| `LOG_RESPONSES` | Log HTTP responses | `false` | ❌ |
+| `LOG_HEADERS` | Log HTTP headers | `false` | ❌ |
+| `LOG_REQUEST_BODY` | Log request bodies | `false` | ❌ |
+| `LOG_RESPONSE_BODY` | Log response bodies | `false` | ❌ |
+
+### Switching Between Configurations
+
+You can easily switch between development configurations:
+
+```bash
+# Switch to minimal setup
+cp .env.example .env.local
+# Edit and uncomment MINIMAL SETUP section
+
+# Switch to Firebase emulators
+cp .env.example .env.local  
+# Edit and uncomment FIREBASE EMULATOR SETUP section
+
+# Switch to production services
+cp .env.example .env.local
+# Edit and uncomment PRODUCTION SERVICES SETUP section
+```
+
+### Service Substitution
+
+The monorepo allows flexible service substitution:
+
+| Service | Local Option | Remote Option | Notes |
+|---------|--------------|---------------|-------|
+| **Authentication** | `SKIP_AUTH=true` | Firebase Auth | Skip for development |
+| **Database** | Firebase emulator | Real Firestore | Emulator recommended |
+| **Storage** | `MOCK_STORAGE=true` | GCS bucket | Mock for development |
+| **Nostr Relay** | `ws://localhost:10547` | Remote relays | Local for development |
+| **Frontend** | Always local | - | Must run locally |
+| **Backend** | Always local | - | Must run locally |
+
+### Advanced Setup Instructions
+
+#### Firebase CLI Setup
+Required for Firebase emulator configuration:
 
 ```bash
 # Install Firebase CLI
 npm install -g firebase-tools
 
-# Login and initialize
+# Login and initialize (one-time setup)
 firebase login
 firebase init
 
@@ -256,7 +403,8 @@ firebase init
 task firebase:emulators
 ```
 
-### GCP Setup
+#### GCP CLI Setup  
+Required for production services configuration:
 
 ```bash
 # Install gcloud CLI
@@ -269,6 +417,11 @@ gcloud config set project your-project-id
 # Enable required APIs
 gcloud services enable run.googleapis.com
 gcloud services enable storage.googleapis.com
+
+# Set up service account (if needed)
+gcloud iam service-accounts create wavlake-dev
+gcloud iam service-accounts keys create key.json --iam-account=wavlake-dev@your-project.iam.gserviceaccount.com
+export GOOGLE_APPLICATION_CREDENTIALS=./key.json
 ```
 
 ## 📊 Quality & Testing Metrics

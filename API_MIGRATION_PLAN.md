@@ -572,35 +572,35 @@ internal/types/
 ```bash
 cd monorepo/apps/backend
 # Should start successfully and respond to heartbeat
-DEVELOPMENT=true SKIP_AUTH=true PORT=8080 go run ./cmd/api &
+DEVELOPMENT=true SKIP_AUTH=true BACKEND_PORT=3000 go run ./cmd/api &
 sleep 3
-curl -s http://localhost:8080/heartbeat  # Should return {"status":"ok"}
+curl -s http://localhost:3000/heartbeat  # Should return {"status":"ok"}
 pkill -f "go run ./cmd/api"
 ```
 
 ### Authentication Endpoints Test (10 min)
 ```bash
 cd monorepo/apps/backend
-DEVELOPMENT=true SKIP_AUTH=true PORT=8080 go run ./cmd/api &
+DEVELOPMENT=true SKIP_AUTH=true BACKEND_PORT=3000 go run ./cmd/api &
 sleep 3
 # All should return appropriate error codes and messages
-curl -s -w "\nStatus: %{http_code}\n" http://localhost:8080/v1/auth/get-linked-pubkeys
-curl -s -w "\nStatus: %{http_code}\n" -X POST http://localhost:8080/v1/auth/unlink-pubkey
-curl -s -w "\nStatus: %{http_code}\n" -X POST http://localhost:8080/v1/auth/link-pubkey
-curl -s -w "\nStatus: %{http_code}\n" -X POST http://localhost:8080/v1/auth/check-pubkey-link
+curl -s -w "\nStatus: %{http_code}\n" http://localhost:3000/v1/auth/get-linked-pubkeys
+curl -s -w "\nStatus: %{http_code}\n" -X POST http://localhost:3000/v1/auth/unlink-pubkey
+curl -s -w "\nStatus: %{http_code}\n" -X POST http://localhost:3000/v1/auth/link-pubkey
+curl -s -w "\nStatus: %{http_code}\n" -X POST http://localhost:3000/v1/auth/check-pubkey-link
 pkill -f "go run ./cmd/api"
 ```
 
 ### Track Endpoints Test (10 min)
 ```bash
 cd monorepo/apps/backend
-DEVELOPMENT=true SKIP_AUTH=true PORT=8080 go run ./cmd/api &
+DEVELOPMENT=true SKIP_AUTH=true BACKEND_PORT=3000 go run ./cmd/api &
 sleep 3
 # Should validate parameters and require authentication
-curl -s -w "\nStatus: %{http_code}\n" http://localhost:8080/v1/tracks/test-id
-curl -s -w "\nStatus: %{http_code}\n" -X POST http://localhost:8080/v1/tracks/nostr
-curl -s -w "\nStatus: %{http_code}\n" http://localhost:8080/v1/tracks/my
-curl -s -w "\nStatus: %{http_code}\n" -X DELETE http://localhost:8080/v1/tracks/test-id
+curl -s -w "\nStatus: %{http_code}\n" http://localhost:3000/v1/tracks/test-id
+curl -s -w "\nStatus: %{http_code}\n" -X POST http://localhost:3000/v1/tracks/nostr
+curl -s -w "\nStatus: %{http_code}\n" http://localhost:3000/v1/tracks/my
+curl -s -w "\nStatus: %{http_code}\n" -X DELETE http://localhost:3000/v1/tracks/test-id
 pkill -f "go run ./cmd/api"
 ```
 
@@ -1059,7 +1059,7 @@ monorepo/
 - Cloud Run deployment with production-like configuration
 - Environment variables: DEVELOPMENT=false, ENVIRONMENT=staging
 - Resource allocation: 1Gi memory, 1 CPU, max 10 instances
-- Port 8080 with unauthenticated access for testing
+- Port 3000 with unauthenticated access for testing
 ```
 
 #### **2. Deployment Script Implementation**

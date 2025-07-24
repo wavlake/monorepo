@@ -181,3 +181,97 @@ export interface LegacyAlbum {
   created_at: string;
   updated_at: string;
 }
+/**
+ * FileUploadToken represents a token for file upload authentication
+ */
+export interface FileUploadToken {
+  token: string;
+  expires_at: string;
+  path: string;
+  user_id: string;
+  created_at: string;
+}
+/**
+ * FileMetadata represents metadata about a file
+ */
+export interface FileMetadata {
+  name: string;
+  size: number /* int64 */;
+  content_type: string;
+  bucket: string;
+  url?: string;
+  metadata?: { [key: string]: string};
+  created_at: string;
+  updated_at: string;
+}
+/**
+ * BucketInfo represents information about a storage bucket
+ */
+export interface BucketInfo {
+  name: string;
+  location: string;
+  storage_class: string;
+  created_at: string;
+}
+/**
+ * SystemInfo represents system diagnostic information
+ */
+export interface SystemInfo {
+  version: string;
+  environment: string;
+  uptime: string;
+  memory: { [key: string]: string};
+  database: { [key: string]: string};
+  storage: { [key: string]: string};
+  services: { [key: string]: string};
+}
+/**
+ * WebhookPayload represents a webhook payload from Cloud Functions
+ */
+export interface WebhookPayload {
+  type: string; // "storage", "nostr_relay", "cloud_function"
+  source: string; // Source of the webhook
+  event_type: string; // Type of event
+  data: { [key: string]: any}; // Event data
+  timestamp: string;
+  signature?: string; // HMAC signature for validation
+}
+/**
+ * LogEntry represents a log entry for debugging
+ */
+export interface LogEntry {
+  level: string;
+  message: string;
+  data?: { [key: string]: any};
+  timestamp: string;
+  service: string;
+}
+/**
+ * ProcessingStatus represents the status of track processing
+ */
+export interface ProcessingStatus {
+  track_id: string;
+  status: string; // "queued", "processing", "completed", "failed"
+  progress: number /* int */; // 0-100
+  message?: string;
+  error?: string;
+  started_at?: string;
+  completed_at?: string;
+}
+/**
+ * AudioMetadata represents metadata extracted from audio files
+ */
+export interface AudioMetadata {
+  duration: number /* int */; // Duration in seconds
+  bitrate: number /* int */; // Bitrate in kbps
+  sample_rate: number /* int */; // Sample rate in Hz
+  channels: number /* int */; // Number of audio channels
+  format: string; // Audio format (mp3, wav, etc.)
+  title?: string;
+  artist?: string;
+  album?: string;
+  genre?: string;
+  year?: number /* int */;
+  track_number?: number /* int */;
+  tags?: { [key: string]: string}; // Additional metadata tags
+}

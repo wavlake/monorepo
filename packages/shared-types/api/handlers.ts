@@ -61,6 +61,167 @@ export interface CheckPubkeyLinkResponse {
 }
 
 //////////
+// source: auth_token_handler.go
+
+/**
+ * AuthTokenHandler handles token-based authentication operations
+ */
+export interface AuthTokenHandler {
+}
+/**
+ * TokenResponse represents a generic token response
+ */
+export interface TokenResponse {
+  success: boolean;
+  data?: any /* models.FileUploadToken */;
+  error?: string;
+  message?: string;
+}
+/**
+ * GenerateDeleteTokenRequest represents the request for delete token generation
+ */
+export interface GenerateDeleteTokenRequest {
+  path: string;
+  expiration: number /* int */; // Expiration in minutes
+}
+/**
+ * ValidateTokenRequest represents the request for token validation
+ */
+export interface ValidateTokenRequest {
+  token: string;
+  path: string;
+}
+/**
+ * RevokeTokenRequest represents the request for token revocation
+ */
+export interface RevokeTokenRequest {
+  token: string;
+}
+/**
+ * RevokeTokenResponse represents the response for token revocation
+ */
+export interface RevokeTokenResponse {
+  success: boolean;
+  error?: string;
+  message?: string;
+}
+/**
+ * ListActiveTokensResponse represents the response for active token listing
+ */
+export interface ListActiveTokensResponse {
+  success: boolean;
+  data?: any /* models.FileUploadToken */[];
+  error?: string;
+}
+/**
+ * RefreshTokenRequest represents the request for token refresh
+ */
+export interface RefreshTokenRequest {
+  token: string;
+  expiration: number /* int */; // New expiration in minutes
+}
+
+//////////
+// source: development_handler.go
+
+/**
+ * DevelopmentHandler handles development utilities and debugging
+ */
+export interface DevelopmentHandler {
+}
+/**
+ * DevResponse represents a generic development response
+ */
+export interface DevResponse {
+  success: boolean;
+  data?: any;
+  error?: string;
+  message?: string;
+}
+/**
+ * GenerateTestFilesRequest represents the request for test file generation
+ */
+export interface GenerateTestFilesRequest {
+  count: number /* int */;
+}
+/**
+ * SimulateLoadRequest represents the request for load simulation
+ */
+export interface SimulateLoadRequest {
+  duration: number /* int */; // duration in seconds
+}
+
+//////////
+// source: file_server_handler.go
+
+/**
+ * FileServerHandler handles file server operations
+ */
+export interface FileServerHandler {
+}
+/**
+ * UploadFileRequest represents the request for file upload
+ */
+export interface UploadFileRequest {
+  Path: string;
+  ContentType: string;
+}
+/**
+ * UploadFileResponse represents the response for file upload
+ */
+export interface UploadFileResponse {
+  success: boolean;
+  data?: any /* models.FileMetadata */;
+  error?: string;
+}
+/**
+ * DownloadFileResponse represents the response for file download
+ */
+export interface DownloadFileResponse {
+  success: boolean;
+  error?: string;
+}
+/**
+ * DeleteFileResponse represents the response for file deletion
+ */
+export interface DeleteFileResponse {
+  success: boolean;
+  error?: string;
+  message?: string;
+}
+/**
+ * GetStatusResponse represents the response for status check
+ */
+export interface GetStatusResponse {
+  success: boolean;
+  data?: { [key: string]: string};
+  error?: string;
+}
+/**
+ * ListFilesResponse represents the response for file listing
+ */
+export interface ListFilesResponse {
+  success: boolean;
+  data?: string[];
+  error?: string;
+}
+/**
+ * GenerateUploadTokenRequest represents the request for generating upload token
+ */
+export interface GenerateUploadTokenRequest {
+  path: string;
+  expiration: number /* int */; // Expiration in minutes
+}
+/**
+ * GenerateUploadTokenResponse represents the response for upload token generation
+ */
+export interface GenerateUploadTokenResponse {
+  success: boolean;
+  data?: any /* models.FileUploadToken */;
+  error?: string;
+}
+
+//////////
 // source: heartbeat.go
 
 export interface HeartbeatResponse {
@@ -80,6 +241,78 @@ export interface UserMetadataResponse {
   artists: any /* models.LegacyArtist */[];
   albums: any /* models.LegacyAlbum */[];
   tracks: any /* models.LegacyTrack */[];
+}
+
+//////////
+// source: mock_storage_handler.go
+
+/**
+ * MockStorageHandler handles mock storage operations for development
+ */
+export interface MockStorageHandler {
+}
+/**
+ * UploadFileRequest represents the request for mock storage file upload
+ */
+export interface MockUploadFileRequest {
+  Bucket: string;
+  Path: string;
+  ContentType: string;
+}
+/**
+ * UploadFileResponse represents the response for mock storage operations
+ */
+export interface MockStorageResponse {
+  success: boolean;
+  data?: any /* models.FileMetadata */;
+  error?: string;
+}
+/**
+ * DeleteFile handles mock storage file deletion
+ */
+export interface MockDeleteResponse {
+  success: boolean;
+  error?: string;
+  message?: string;
+}
+/**
+ * ListFilesResponse represents the response for mock storage file listing
+ */
+export interface MockListFilesResponse {
+  success: boolean;
+  data?: string[];
+  error?: string;
+}
+/**
+ * GetBucketInfoResponse represents the response for bucket information
+ */
+export interface GetBucketInfoResponse {
+  success: boolean;
+  data?: any /* models.BucketInfo */;
+  error?: string;
+}
+/**
+ * CreateBucketRequest represents the request for bucket creation
+ */
+export interface CreateBucketRequest {
+  bucket: string;
+  location: string;
+}
+/**
+ * CreateBucketResponse represents the response for bucket creation
+ */
+export interface CreateBucketResponse {
+  success: boolean;
+  error?: string;
+  message?: string;
+}
+/**
+ * HealthCheckResponse represents the response for health check
+ */
+export interface MockHealthCheckResponse {
+  success: boolean;
+  status?: string;
+  error?: string;
 }
 
 //////////
@@ -140,4 +373,22 @@ export interface GetTracksResponse {
   success: boolean;
   data?: (any /* models.NostrTrack */ | undefined)[];
   error?: string;
+}
+
+//////////
+// source: webhook_handler.go
+
+/**
+ * WebhookHandler handles webhook operations from Cloud Functions
+ */
+export interface WebhookHandler {
+}
+/**
+ * WebhookResponse represents a generic webhook response
+ */
+export interface WebhookResponse {
+  success: boolean;
+  data?: any;
+  error?: string;
+  message?: string;
 }

@@ -26,10 +26,10 @@ COPY --from=builder /app/api /api
 COPY --from=builder /app/fileserver /fileserver
 
 # Set environment variables
-ENV PORT=8080
+ENV BACKEND_PORT=3000
 
 # Expose ports
-EXPOSE 8080
+EXPOSE 3000
 EXPOSE 8081
 
 # Default to running the API server

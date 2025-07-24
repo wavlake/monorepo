@@ -40,9 +40,9 @@ func main() {
 	// Load development configuration
 	devConfig := config.LoadDevConfig()
 
-	port := os.Getenv("PORT")
+	port := os.Getenv("BACKEND_PORT")
 	if port == "" {
-		port = "8080"
+		port = "3000"
 	}
 
 	projectID := os.Getenv("GOOGLE_CLOUD_PROJECT")
@@ -254,8 +254,8 @@ func main() {
 	// Configure CORS
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowOrigins = []string{
-		"http://localhost:8080",                           // Development
-		"http://localhost:3000",                           // Alternative dev port
+		"http://localhost:8080",                           // Frontend development
+		"http://localhost:3000",                           // Backend development
 		"http://localhost:8083",                           // Another dev port
 		"https://wavlake.com",                             // Production
 		"https://*.wavlake.com",                           // Subdomains

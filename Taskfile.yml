@@ -128,9 +128,9 @@ tasks:
     cmds:
       - |
         trap 'kill $(jobs -p)' EXIT
-        task relay:dev &
-        task backend:dev &
-        task frontend:dev &
+        task dev:relay &
+        task dev:backend &
+        task dev:frontend &
         wait
 
   dev:tdd:
@@ -192,19 +192,20 @@ tasks:
   test:unit:fast:
     desc: "Run unit tests with faster feedback (parallel, no coverage)"
     cmds:
-      - task: test:unit:backend:fast &
-      - task: test:unit:frontend:fast &
-      - wait
+      - |
+        task test:unit:backend:fast &
+        task test:unit:frontend:fast &
+        wait
 
   test:unit:frontend:
     desc: "Run frontend unit tests with coverage"
     cmds:
-      - cd {{.FRONTEND_DIR}} && npm run test:coverage
+      - cd {{.FRONTEND_DIR}} && npm run test:coverage -- --run
 
   test:unit:frontend:fast:
     desc: "Run frontend unit tests (fast mode)"
     cmds:
-      - cd {{.FRONTEND_DIR}} && npm test -- --watchAll=false
+      - cd {{.FRONTEND_DIR}} && npm test -- --run
 
   test:unit:backend:
     desc: "Run Go unit tests with coverage"
@@ -217,11 +218,9 @@ tasks:
       - cd {{.BACKEND_DIR}} && ginkgo -r --randomizeAllSpecs
 
   test:integration:
-    desc: "Run integration tests (against local services)"
+    desc: "Run integration tests"
     cmds:
-      - task: test:services:start
       - cd {{.BACKEND_DIR}} && ginkgo -r -tags=integration ./tests/integration
-      - task: test:services:stop
 
   test:integration:staging:
     desc: "Run all integration tests against staging environment"
@@ -237,25 +236,26 @@ tasks:
     desc: "Run end-to-end tests"
     cmds:
       - task: build:frontend
-      - task: test:services:start  
       - cd {{.FRONTEND_DIR}} && npm run test:e2e
-      - task: test:services:stop
 
   test:contract:
     desc: "Run API contract tests"
     cmds:
       - cd {{.BACKEND_DIR}} && ginkgo -r -tags=contract ./tests/contract
 
-  test:services:start:
-    desc: "Start test services (database, relay, etc.)"
+  # === Safe Commit Workflow ===
+  commit:safe:
+    desc: "Safe commit workflow: runs unit + integration tests before allowing commit"
     cmds:
-      - docker-compose -f docker-compose.test.yml up -d
-      - sleep 3
+      - "echo '🧪 Running unit tests...'"
+      - task: test:unit
+      - "echo '✅ Unit tests passed!'"
+      - "echo '🔗 Running integration tests...'"
+      - task: test:integration
+      - "echo '✅ Integration tests passed!'"
+      - "echo '🎯 All tests passed - ready to commit safely!'"
+      - "echo '💡 Now run: git add . && git commit -m \"your message\"'"
 
-  test:services:stop:
-    desc: "Stop test services"
-    cmds:
-      - docker-compose -f docker-compose.test.yml down
 
   test:setup:
     desc: "Set up testing environment and generate mocks"
@@ -540,9 +540,9 @@ tasks:
   health:
     desc: "Check health of all services"
     cmds:
-      - curl -f http://localhost:3000/health || echo "Frontend not responding"
-      - curl -f http://localhost:8080/health || echo "Backend not responding"
-      - curl -f http://localhost:7777 || echo "Relay not responding"
+      - curl -f http://localhost:${VITE_PORT:-8080}/ || echo "Frontend not responding"
+      - curl -f http://localhost:${BACKEND_PORT:-3000}/heartbeat || echo "Backend not responding"
+      - nc -z localhost 10547 && echo "Relay listening on port 10547" || echo "Relay not responding"
 
   # === Documentation ===
   docs:

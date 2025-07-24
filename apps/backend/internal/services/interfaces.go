@@ -70,12 +70,77 @@ type ProcessingServiceInterface interface {
 // AudioProcessorInterface defines the interface for audio processing operations
 type AudioProcessorInterface interface {
 	IsFormatSupported(extension string) bool
+	ValidateAudioFile(ctx context.Context, filePath string) error
+	ExtractMetadata(ctx context.Context, filePath string) (*models.AudioMetadata, error)
+	CompressAudio(ctx context.Context, inputPath, outputPath string, options models.CompressionOption) error
 }
 
 // StoragePathConfigInterface defines the interface for storage path operations
 type StoragePathConfigInterface interface {
 	GetOriginalPath(trackID, extension string) string
 	GetCompressedPath(trackID string) string
+}
+
+// CompressionServiceInterface defines the interface for compression version management
+type CompressionServiceInterface interface {
+	RequestCompression(ctx context.Context, trackID string, options []models.CompressionOption) error
+	GetCompressionStatus(ctx context.Context, trackID string) (*models.ProcessingStatus, error)
+	AddCompressionVersion(ctx context.Context, trackID string, version models.CompressionVersion) error
+	UpdateVersionVisibility(ctx context.Context, trackID, versionID string, isPublic bool) error
+	GetPublicVersions(ctx context.Context, trackID string) ([]models.CompressionVersion, error)
+	DeleteCompressionVersion(ctx context.Context, trackID, versionID string) error
+}
+
+// FileServerServiceInterface defines the interface for file server operations
+type FileServerServiceInterface interface {
+	UploadFile(ctx context.Context, path string, data io.Reader, contentType string) (*models.FileMetadata, error)
+	DownloadFile(ctx context.Context, path string) (io.ReadCloser, error)
+	DeleteFile(ctx context.Context, path string) error
+	ListFiles(ctx context.Context, prefix string) ([]string, error)
+	GetFileMetadata(ctx context.Context, path string) (*models.FileMetadata, error)
+	GenerateUploadToken(ctx context.Context, path, userID string, expiration time.Duration) (*models.FileUploadToken, error)
+}
+
+// MockStorageServiceInterface defines the interface for mock storage operations
+type MockStorageServiceInterface interface {
+	UploadFile(ctx context.Context, bucket, path string, data io.Reader, contentType string) (*models.FileMetadata, error)
+	DownloadFile(ctx context.Context, bucket, path string) (io.ReadCloser, error)
+	DeleteFile(ctx context.Context, bucket, path string) error
+	ListFiles(ctx context.Context, bucket, prefix string) ([]string, error)
+	GetBucketInfo(ctx context.Context, bucket string) (*models.BucketInfo, error)
+	CreateBucket(ctx context.Context, bucket, location string) error
+	HealthCheck(ctx context.Context) error
+}
+
+// DevelopmentServiceInterface defines the interface for development utilities
+type DevelopmentServiceInterface interface {
+	ResetDatabase(ctx context.Context) error
+	SeedTestData(ctx context.Context) error
+	GetSystemInfo(ctx context.Context) (*models.SystemInfo, error)
+	ClearCache(ctx context.Context) error
+	GenerateTestFiles(ctx context.Context, count int) ([]string, error)
+	SimulateLoad(ctx context.Context, duration time.Duration) error
+	GetLogs(ctx context.Context, level string, limit int) ([]models.LogEntry, error)
+}
+
+// TokenServiceInterface defines the interface for token-based authentication
+type TokenServiceInterface interface {
+	GenerateUploadToken(ctx context.Context, path, userID string, expiration time.Duration) (*models.FileUploadToken, error)
+	GenerateDeleteToken(ctx context.Context, path, userID string, expiration time.Duration) (*models.FileUploadToken, error)
+	ValidateToken(ctx context.Context, token, path string) (*models.FileUploadToken, error)
+	RevokeToken(ctx context.Context, token string) error
+	ListActiveTokens(ctx context.Context, userID string) ([]models.FileUploadToken, error)
+	RefreshToken(ctx context.Context, token string, expiration time.Duration) (*models.FileUploadToken, error)
+}
+
+// WebhookServiceInterface defines the interface for webhook handling
+type WebhookServiceInterface interface {
+	ProcessCloudFunctionWebhook(ctx context.Context, payload models.WebhookPayload) error
+	ProcessStorageWebhook(ctx context.Context, payload models.WebhookPayload) error
+	ProcessNostrRelayWebhook(ctx context.Context, payload models.WebhookPayload) error
+	GetWebhookStatus(ctx context.Context, webhookID string) (*models.ProcessingStatus, error)
+	RetryFailedWebhooks(ctx context.Context, maxRetries int) error
+	ValidateWebhookSignature(payload []byte, signature, secret string) error
 }
 
 // Ensure services implement their interfaces

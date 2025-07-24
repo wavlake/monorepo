@@ -182,3 +182,91 @@ type LegacyAlbum struct {
 	CreatedAt       time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt       time.Time `db:"updated_at" json:"updated_at"`
 }
+
+// === Phase 2 Models ===
+
+// FileUploadToken represents a token for file upload authentication
+type FileUploadToken struct {
+	Token     string    `json:"token"`
+	ExpiresAt time.Time `json:"expires_at"`
+	Path      string    `json:"path"`
+	UserID    string    `json:"user_id"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// FileMetadata represents metadata about a file
+type FileMetadata struct {
+	Name        string            `json:"name"`
+	Size        int64             `json:"size"`
+	ContentType string            `json:"content_type"`
+	Bucket      string            `json:"bucket"`
+	URL         string            `json:"url,omitempty"`
+	Metadata    map[string]string `json:"metadata,omitempty"`
+	CreatedAt   time.Time         `json:"created_at"`
+	UpdatedAt   time.Time         `json:"updated_at"`
+}
+
+// BucketInfo represents information about a storage bucket
+type BucketInfo struct {
+	Name         string    `json:"name"`
+	Location     string    `json:"location"`
+	StorageClass string    `json:"storage_class"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
+// SystemInfo represents system diagnostic information
+type SystemInfo struct {
+	Version     string            `json:"version"`
+	Environment string            `json:"environment"`
+	Uptime      string            `json:"uptime"`
+	Memory      map[string]string `json:"memory"`
+	Database    map[string]string `json:"database"`
+	Storage     map[string]string `json:"storage"`
+	Services    map[string]string `json:"services"`
+}
+
+// WebhookPayload represents a webhook payload from Cloud Functions
+type WebhookPayload struct {
+	Type      string                 `json:"type"`        // "storage", "nostr_relay", "cloud_function"
+	Source    string                 `json:"source"`      // Source of the webhook
+	EventType string                 `json:"event_type"`  // Type of event
+	Data      map[string]interface{} `json:"data"`        // Event data
+	Timestamp time.Time              `json:"timestamp"`
+	Signature string                 `json:"signature,omitempty"` // HMAC signature for validation
+}
+
+// LogEntry represents a log entry for debugging
+type LogEntry struct {
+	Level     string                 `json:"level"`
+	Message   string                 `json:"message"`
+	Data      map[string]interface{} `json:"data,omitempty"`
+	Timestamp time.Time              `json:"timestamp"`
+	Service   string                 `json:"service"`
+}
+
+// ProcessingStatus represents the status of track processing
+type ProcessingStatus struct {
+	TrackID     string    `json:"track_id"`
+	Status      string    `json:"status"` // "queued", "processing", "completed", "failed"
+	Progress    int       `json:"progress"` // 0-100
+	Message     string    `json:"message,omitempty"`
+	Error       string    `json:"error,omitempty"`
+	StartedAt   time.Time `json:"started_at,omitempty"`
+	CompletedAt time.Time `json:"completed_at,omitempty"`
+}
+
+// AudioMetadata represents metadata extracted from audio files
+type AudioMetadata struct {
+	Duration    int               `json:"duration"`     // Duration in seconds
+	Bitrate     int               `json:"bitrate"`      // Bitrate in kbps
+	SampleRate  int               `json:"sample_rate"`  // Sample rate in Hz
+	Channels    int               `json:"channels"`     // Number of audio channels
+	Format      string            `json:"format"`       // Audio format (mp3, wav, etc.)
+	Title       string            `json:"title,omitempty"`
+	Artist      string            `json:"artist,omitempty"`
+	Album       string            `json:"album,omitempty"`
+	Genre       string            `json:"genre,omitempty"`
+	Year        int               `json:"year,omitempty"`
+	TrackNumber int               `json:"track_number,omitempty"`
+	Tags        map[string]string `json:"tags,omitempty"` // Additional metadata tags
+}

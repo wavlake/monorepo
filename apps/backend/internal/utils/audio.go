@@ -102,9 +102,14 @@ func (ap *AudioProcessor) GetAudioInfo(ctx context.Context, inputPath string) (*
 	}, nil
 }
 
-// CompressAudio compresses an audio file to a reasonable streaming quality
+// CompressAudio compresses audio with user-specified options (interface method)
+func (ap *AudioProcessor) CompressAudio(ctx context.Context, inputPath, outputPath string, options models.CompressionOption) error {
+	return ap.CompressAudioWithOptions(ctx, inputPath, outputPath, options)
+}
+
+// CompressAudioDefault compresses an audio file to a reasonable streaming quality
 // Target: 128kbps MP3, 44.1kHz sample rate
-func (ap *AudioProcessor) CompressAudio(ctx context.Context, inputPath, outputPath string) error {
+func (ap *AudioProcessor) CompressAudioDefault(ctx context.Context, inputPath, outputPath string) error {
 	// Create output directory if it doesn't exist
 	// #nosec G301
 	if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
@@ -158,7 +163,7 @@ func (ap *AudioProcessor) DownloadAndCompress(ctx context.Context, sourceURL, ou
 	}
 
 	// Compress the audio
-	if err := ap.CompressAudio(ctx, tempFile.Name(), outputPath); err != nil {
+	if err := ap.CompressAudioDefault(ctx, tempFile.Name(), outputPath); err != nil {
 		return nil, fmt.Errorf("failed to compress audio: %w", err)
 	}
 
@@ -257,3 +262,83 @@ func (ap *AudioProcessor) CompressAudioWithOptions(ctx context.Context, inputPat
 	log.Printf("Successfully compressed audio with options: %s -> %s", inputPath, outputPath)
 	return nil
 }
+
+// ExtractMetadata extracts comprehensive metadata from an audio file
+func (ap *AudioProcessor) ExtractMetadata(ctx context.Context, filePath string) (*models.AudioMetadata, error) {
+	// Get basic audio info
+	audioInfo, err := ap.GetAudioInfo(ctx, filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get audio info: %w", err)
+	}
+
+	// Get format info
+	cmd := exec.CommandContext(ctx, "ffprobe",
+		"-v", "quiet",
+		"-show_entries", "format=format_name",
+		"-show_entries", "format_tags=title,artist,album,genre,date,track",
+		"-of", "csv=p=0",
+		filePath)
+
+	output, err := cmd.Output()
+	if err != nil {
+		// If metadata extraction fails, return basic info
+		return &models.AudioMetadata{
+			Duration:   audioInfo.Duration,
+			Bitrate:    audioInfo.Bitrate,
+			SampleRate: audioInfo.SampleRate,
+			Channels:   audioInfo.Channels,
+			Format:     "unknown",
+		}, nil
+	}
+
+	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
+	
+	metadata := &models.AudioMetadata{
+		Duration:   audioInfo.Duration,
+		Bitrate:    audioInfo.Bitrate,
+		SampleRate: audioInfo.SampleRate,
+		Channels:   audioInfo.Channels,
+		Tags:       make(map[string]string),
+	}
+
+	// Parse format and tags
+	if len(lines) > 0 {
+		formatParts := strings.Split(lines[0], ",")
+		if len(formatParts) > 0 {
+			metadata.Format = formatParts[0]
+		}
+		
+		// Parse metadata tags if available
+		if len(formatParts) > 1 {
+			tags := formatParts[1:]
+			tagNames := []string{"title", "artist", "album", "genre", "date", "track"}
+			
+			for i, tag := range tags {
+				if i < len(tagNames) && tag != "" {
+					switch tagNames[i] {
+					case "title":
+						metadata.Title = tag
+					case "artist":
+						metadata.Artist = tag
+					case "album":
+						metadata.Album = tag
+					case "genre":
+						metadata.Genre = tag
+					case "date":
+						if year, err := strconv.Atoi(tag); err == nil {
+							metadata.Year = year
+						}
+					case "track":
+						if track, err := strconv.Atoi(tag); err == nil {
+							metadata.TrackNumber = track
+						}
+					}
+					metadata.Tags[tagNames[i]] = tag
+				}
+			}
+		}
+	}
+
+	return metadata, nil
+}
+

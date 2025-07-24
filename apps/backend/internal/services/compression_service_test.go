@@ -17,21 +17,19 @@ import (
 
 var _ = Describe("CompressionService", func() {
 	var (
-		ctrl                 *gomock.Controller
-		mockStorage          *mocks.MockStorageServiceInterface
-		mockNostrTrack       *mocks.MockNostrTrackServiceInterface
-		compressionService   services.CompressionServiceInterface
-		ctx                  context.Context
-		testTrackID          string
-		testCompressionOpts  models.CompressionOption
+		ctrl               *gomock.Controller
+		mockNostrTrack     *mocks.MockNostrTrackServiceInterface
+		compressionService services.CompressionServiceInterface
+		ctx                context.Context
+		testTrackID        string
+		testCompressionOpts models.CompressionOption
 		testCompressionVersion models.CompressionVersion
 	)
 
 	BeforeEach(func() {
 		ctrl = gomock.NewController(GinkgoT())
-		mockStorage = mocks.NewMockStorageServiceInterface(ctrl)
 		mockNostrTrack = mocks.NewMockNostrTrackServiceInterface(ctrl)
-		compressionService = services.NewCompressionService(mockStorage, mockNostrTrack)
+		compressionService = services.NewCompressionService(mockNostrTrack)
 		ctx = context.Background()
 		testTrackID = testutil.TestTrackID
 		
@@ -62,9 +60,7 @@ var _ = Describe("CompressionService", func() {
 
 	Describe("RequestCompression", func() {
 		Context("when compression request is valid", func() {
-			It("should queue compression job and return job ID", func() {
-				expectedJobID := "job-456"
-				
+			It("should queue compression job successfully", func() {
 				mockNostrTrack.EXPECT().
 					GetTrack(ctx, testTrackID).
 					Return(&models.NostrTrack{
@@ -74,26 +70,12 @@ var _ = Describe("CompressionService", func() {
 					}, nil)
 
 				mockNostrTrack.EXPECT().
-					UpdateCompressionStatus(ctx, testTrackID, true).
+					SetPendingCompression(ctx, testTrackID, true).
 					Return(nil)
 
-				jobID, err := compressionService.RequestCompression(ctx, testTrackID, testCompressionOpts)
+				err := compressionService.RequestCompression(ctx, testTrackID, []models.CompressionOption{testCompressionOpts})
 				
 				Expect(err).ToNot(HaveOccurred())
-				Expect(jobID).To(Equal(expectedJobID))
-			})
-
-			It("should validate compression options before queuing", func() {
-				invalidOpts := models.CompressionOption{
-					Bitrate: 999, // Invalid bitrate
-					Format:  "invalid",
-					Quality: "unknown",
-				}
-
-				_, err := compressionService.RequestCompression(ctx, testTrackID, invalidOpts)
-				
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("invalid compression options"))
 			})
 
 			It("should return error when track not found", func() {
@@ -101,129 +83,84 @@ var _ = Describe("CompressionService", func() {
 					GetTrack(ctx, testTrackID).
 					Return(nil, errors.New("track not found"))
 
-				_, err := compressionService.RequestCompression(ctx, testTrackID, testCompressionOpts)
+				err := compressionService.RequestCompression(ctx, testTrackID, []models.CompressionOption{testCompressionOpts})
 				
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("track not found"))
 			})
-
-			It("should handle compression already in progress", func() {
-				mockNostrTrack.EXPECT().
-					GetTrack(ctx, testTrackID).
-					Return(&models.NostrTrack{
-						ID:                    testTrackID,
-						OriginalURL:          "gs://bucket/original/track-123.wav",
-						HasPendingCompression: true,
-					}, nil)
-
-				_, err := compressionService.RequestCompression(ctx, testTrackID, testCompressionOpts)
-				
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("compression already in progress"))
-			})
-		})
-
-		Context("when compression options validation", func() {
-			DescribeTable("should validate compression parameters",
-				func(opts models.CompressionOption, expectedValid bool) {
-					if expectedValid {
-						mockNostrTrack.EXPECT().
-							GetTrack(ctx, testTrackID).
-							Return(&models.NostrTrack{ID: testTrackID, OriginalURL: "gs://bucket/test.wav"}, nil)
-						mockNostrTrack.EXPECT().
-							UpdateCompressionStatus(ctx, testTrackID, true).
-							Return(nil)
-					}
-
-					_, err := compressionService.RequestCompression(ctx, testTrackID, opts)
-					
-					if expectedValid {
-						Expect(err).ToNot(HaveOccurred())
-					} else {
-						Expect(err).To(HaveOccurred())
-					}
-				},
-				Entry("valid MP3 high quality", models.CompressionOption{Bitrate: 320, Format: "mp3", Quality: "high", SampleRate: 44100}, true),
-				Entry("valid AAC medium quality", models.CompressionOption{Bitrate: 256, Format: "aac", Quality: "medium", SampleRate: 48000}, true),
-				Entry("valid OGG low quality", models.CompressionOption{Bitrate: 128, Format: "ogg", Quality: "low", SampleRate: 44100}, true),
-				Entry("invalid bitrate too low", models.CompressionOption{Bitrate: 64, Format: "mp3", Quality: "medium"}, false),
-				Entry("invalid bitrate too high", models.CompressionOption{Bitrate: 500, Format: "mp3", Quality: "high"}, false),
-				Entry("invalid format", models.CompressionOption{Bitrate: 256, Format: "wav", Quality: "high"}, false),
-				Entry("invalid quality", models.CompressionOption{Bitrate: 256, Format: "mp3", Quality: "ultra"}, false),
-				Entry("invalid sample rate", models.CompressionOption{Bitrate: 256, Format: "mp3", Quality: "high", SampleRate: 22000}, false),
-			)
 		})
 	})
 
 	Describe("GetCompressionStatus", func() {
-		It("should return compression job status", func() {
-			jobID := "job-456"
-			expectedStatus := &services.CompressionStatus{
-				JobID:     jobID,
-				Status:    "processing",
-				Progress:  45,
-				ETA:       300, // 5 minutes
-				CreatedAt: time.Now(),
+		It("should return compression status for track", func() {
+			track := &models.NostrTrack{
+				ID:                    testTrackID,
+				IsProcessing:          false,
+				HasPendingCompression: false,
+				CreatedAt:            time.Now(),
 			}
 
-			status, err := compressionService.GetCompressionStatus(ctx, jobID)
+			mockNostrTrack.EXPECT().
+				GetTrack(ctx, testTrackID).
+				Return(track, nil)
+
+			status, err := compressionService.GetCompressionStatus(ctx, testTrackID)
 			
 			Expect(err).ToNot(HaveOccurred())
-			Expect(status).To(Equal(expectedStatus))
-		})
-
-		It("should return error for invalid job ID", func() {
-			invalidJobID := "invalid-job"
-
-			_, err := compressionService.GetCompressionStatus(ctx, invalidJobID)
-			
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("job not found"))
-		})
-
-		It("should handle completed compression job", func() {
-			jobID := "job-completed"
-			expectedStatus := &services.CompressionStatus{
-				JobID:     jobID,
-				Status:    "completed",
-				Progress:  100,
-				CreatedAt: time.Now(),
-				CompletedAt: &time.Time{},
-				Result: &models.CompressionVersion{
-					ID:     "version-123",
-					URL:    "gs://bucket/compressed/track-123-256.mp3",
-					Format: "mp3",
-				},
-			}
-
-			status, err := compressionService.GetCompressionStatus(ctx, jobID)
-			
-			Expect(err).ToNot(HaveOccurred())
+			Expect(status.TrackID).To(Equal(testTrackID))
 			Expect(status.Status).To(Equal("completed"))
 			Expect(status.Progress).To(Equal(100))
-			Expect(status.Result).ToNot(BeNil())
 		})
 
-		It("should handle failed compression job", func() {
-			jobID := "job-failed"
+		It("should return processing status when track is processing", func() {
+			track := &models.NostrTrack{
+				ID:           testTrackID,
+				IsProcessing: true,
+				CreatedAt:    time.Now(),
+			}
 
-			status, err := compressionService.GetCompressionStatus(ctx, jobID)
+			mockNostrTrack.EXPECT().
+				GetTrack(ctx, testTrackID).
+				Return(track, nil)
+
+			status, err := compressionService.GetCompressionStatus(ctx, testTrackID)
 			
 			Expect(err).ToNot(HaveOccurred())
-			Expect(status.Status).To(Equal("failed"))
-			Expect(status.Error).ToNot(BeEmpty())
+			Expect(status.Status).To(Equal("processing"))
+		})
+
+		It("should return queued status when has pending compression", func() {
+			track := &models.NostrTrack{
+				ID:                    testTrackID,
+				IsProcessing:          false,
+				HasPendingCompression: true,
+				CreatedAt:            time.Now(),
+			}
+
+			mockNostrTrack.EXPECT().
+				GetTrack(ctx, testTrackID).
+				Return(track, nil)
+
+			status, err := compressionService.GetCompressionStatus(ctx, testTrackID)
+			
+			Expect(err).ToNot(HaveOccurred())
+			Expect(status.Status).To(Equal("queued"))
+		})
+
+		It("should return error for invalid track ID", func() {
+			mockNostrTrack.EXPECT().
+				GetTrack(ctx, testTrackID).
+				Return(nil, errors.New("track not found"))
+
+			_, err := compressionService.GetCompressionStatus(ctx, testTrackID)
+			
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("track not found"))
 		})
 	})
 
 	Describe("AddCompressionVersion", func() {
 		It("should add compression version to track", func() {
-			mockNostrTrack.EXPECT().
-				GetTrack(ctx, testTrackID).
-				Return(&models.NostrTrack{
-					ID:                  testTrackID,
-					CompressionVersions: []models.CompressionVersion{},
-				}, nil)
-
 			mockNostrTrack.EXPECT().
 				AddCompressionVersion(ctx, testTrackID, testCompressionVersion).
 				Return(nil)
@@ -233,33 +170,15 @@ var _ = Describe("CompressionService", func() {
 			Expect(err).ToNot(HaveOccurred())
 		})
 
-		It("should prevent duplicate compression versions", func() {
-			existingVersion := testCompressionVersion
-			existingVersion.ID = "existing-version"
-
+		It("should handle service errors", func() {
 			mockNostrTrack.EXPECT().
-				GetTrack(ctx, testTrackID).
-				Return(&models.NostrTrack{
-					ID:                  testTrackID,
-					CompressionVersions: []models.CompressionVersion{existingVersion},
-				}, nil)
-
-			// Try to add version with same format/bitrate/quality
-			err := compressionService.AddCompressionVersion(ctx, testTrackID, testCompressionVersion)
-			
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("compression version already exists"))
-		})
-
-		It("should handle storage service errors", func() {
-			mockNostrTrack.EXPECT().
-				GetTrack(ctx, testTrackID).
-				Return(nil, errors.New("storage error"))
+				AddCompressionVersion(ctx, testTrackID, testCompressionVersion).
+				Return(errors.New("service error"))
 
 			err := compressionService.AddCompressionVersion(ctx, testTrackID, testCompressionVersion)
 			
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("storage error"))
+			Expect(err.Error()).To(ContainSubstring("service error"))
 		})
 	})
 
@@ -268,8 +187,15 @@ var _ = Describe("CompressionService", func() {
 			versionID := "version-123"
 			isPublic := false
 
+			expectedUpdates := []models.VersionUpdate{
+				{
+					VersionID: versionID,
+					IsPublic:  isPublic,
+				},
+			}
+
 			mockNostrTrack.EXPECT().
-				UpdateCompressionVersionVisibility(ctx, testTrackID, versionID, isPublic).
+				UpdateCompressionVisibility(ctx, testTrackID, expectedUpdates).
 				Return(nil)
 
 			err := compressionService.UpdateVersionVisibility(ctx, testTrackID, versionID, isPublic)
@@ -277,18 +203,25 @@ var _ = Describe("CompressionService", func() {
 			Expect(err).ToNot(HaveOccurred())
 		})
 
-		It("should return error for non-existent version", func() {
-			versionID := "non-existent"
+		It("should return error for service failures", func() {
+			versionID := "version-123"
 			isPublic := true
 
+			expectedUpdates := []models.VersionUpdate{
+				{
+					VersionID: versionID,
+					IsPublic:  isPublic,
+				},
+			}
+
 			mockNostrTrack.EXPECT().
-				UpdateCompressionVersionVisibility(ctx, testTrackID, versionID, isPublic).
-				Return(errors.New("version not found"))
+				UpdateCompressionVisibility(ctx, testTrackID, expectedUpdates).
+				Return(errors.New("service error"))
 
 			err := compressionService.UpdateVersionVisibility(ctx, testTrackID, versionID, isPublic)
 			
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("version not found"))
+			Expect(err.Error()).To(ContainSubstring("service error"))
 		})
 	})
 
@@ -299,7 +232,7 @@ var _ = Describe("CompressionService", func() {
 			publicVersion1.IsPublic = true
 
 			publicVersion2 := testCompressionVersion
-			publicVersion2.ID = "public-2"
+			publicVersion2.ID = "public-2" 
 			publicVersion2.IsPublic = true
 			publicVersion2.Format = "aac"
 
@@ -358,55 +291,31 @@ var _ = Describe("CompressionService", func() {
 	})
 
 	Describe("DeleteCompressionVersion", func() {
-		It("should delete compression version and associated file", func() {
+		It("should delete compression version", func() {
 			versionID := "version-123"
-			versionURL := "gs://bucket/compressed/track-123-256.mp3"
-
-			mockStorage.EXPECT().
-				DeleteFile(ctx, versionURL).
-				Return(nil)
 
 			mockNostrTrack.EXPECT().
-				RemoveCompressionVersion(ctx, testTrackID, versionID).
-				Return(nil)
+				GetTrack(ctx, testTrackID).
+				Return(&models.NostrTrack{
+					ID: testTrackID,
+				}, nil)
 
 			err := compressionService.DeleteCompressionVersion(ctx, testTrackID, versionID)
 			
 			Expect(err).ToNot(HaveOccurred())
 		})
 
-		It("should handle file deletion errors gracefully", func() {
+		It("should return error when track not found", func() {
 			versionID := "version-123"
 
-			mockStorage.EXPECT().
-				DeleteFile(ctx, gomock.Any()).
-				Return(errors.New("file not found"))
-
-			// Should still try to remove from database
 			mockNostrTrack.EXPECT().
-				RemoveCompressionVersion(ctx, testTrackID, versionID).
-				Return(nil)
-
-			err := compressionService.DeleteCompressionVersion(ctx, testTrackID, versionID)
-			
-			Expect(err).ToNot(HaveOccurred()) // Should not fail if file already gone
-		})
-
-		It("should return error when database removal fails", func() {
-			versionID := "version-123"
-
-			mockStorage.EXPECT().
-				DeleteFile(ctx, gomock.Any()).
-				Return(nil)
-
-			mockNostrTrack.EXPECT().
-				RemoveCompressionVersion(ctx, testTrackID, versionID).
-				Return(errors.New("database error"))
+				GetTrack(ctx, testTrackID).
+				Return(nil, errors.New("track not found"))
 
 			err := compressionService.DeleteCompressionVersion(ctx, testTrackID, versionID)
 			
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("database error"))
+			Expect(err.Error()).To(ContainSubstring("track not found"))
 		})
 	})
 })

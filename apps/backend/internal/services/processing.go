@@ -67,8 +67,14 @@ func (p *ProcessingService) ProcessTrack(ctx context.Context, trackID string) er
 		// Continue processing even if we can't get metadata
 	}
 
-	// Compress the audio
-	if err := p.audioProcessor.CompressAudio(ctx, originalPath, compressedPath); err != nil {
+	// Compress the audio with default options
+	defaultOptions := models.CompressionOption{
+		Bitrate:    128,
+		Format:     "mp3",
+		Quality:    "medium",
+		SampleRate: 44100,
+	}
+	if err := p.audioProcessor.CompressAudio(ctx, originalPath, compressedPath, defaultOptions); err != nil {
 		return p.markProcessingFailed(ctx, trackID, fmt.Sprintf("compression failed: %v", err))
 	}
 
@@ -265,7 +271,7 @@ func (p *ProcessingService) ProcessCompression(ctx context.Context, trackID stri
 	}
 
 	// Compress with specific options
-	if err := p.audioProcessor.CompressAudioWithOptions(ctx, originalPath, compressedPath, option); err != nil {
+	if err := p.audioProcessor.CompressAudio(ctx, originalPath, compressedPath, option); err != nil {
 		return fmt.Errorf("compression failed: %v", err)
 	}
 

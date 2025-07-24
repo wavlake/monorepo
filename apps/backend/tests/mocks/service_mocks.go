@@ -682,6 +682,35 @@ func (m *MockAudioProcessorInterface) EXPECT() *MockAudioProcessorInterfaceMockR
 	return m.recorder
 }
 
+// CompressAudio mocks base method.
+func (m *MockAudioProcessorInterface) CompressAudio(ctx context.Context, inputPath, outputPath string, options models.CompressionOption) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CompressAudio", ctx, inputPath, outputPath, options)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CompressAudio indicates an expected call of CompressAudio.
+func (mr *MockAudioProcessorInterfaceMockRecorder) CompressAudio(ctx, inputPath, outputPath, options interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompressAudio", reflect.TypeOf((*MockAudioProcessorInterface)(nil).CompressAudio), ctx, inputPath, outputPath, options)
+}
+
+// ExtractMetadata mocks base method.
+func (m *MockAudioProcessorInterface) ExtractMetadata(ctx context.Context, filePath string) (*models.AudioMetadata, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExtractMetadata", ctx, filePath)
+	ret0, _ := ret[0].(*models.AudioMetadata)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExtractMetadata indicates an expected call of ExtractMetadata.
+func (mr *MockAudioProcessorInterfaceMockRecorder) ExtractMetadata(ctx, filePath interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExtractMetadata", reflect.TypeOf((*MockAudioProcessorInterface)(nil).ExtractMetadata), ctx, filePath)
+}
+
 // IsFormatSupported mocks base method.
 func (m *MockAudioProcessorInterface) IsFormatSupported(extension string) bool {
 	m.ctrl.T.Helper()
@@ -694,6 +723,20 @@ func (m *MockAudioProcessorInterface) IsFormatSupported(extension string) bool {
 func (mr *MockAudioProcessorInterfaceMockRecorder) IsFormatSupported(extension interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsFormatSupported", reflect.TypeOf((*MockAudioProcessorInterface)(nil).IsFormatSupported), extension)
+}
+
+// ValidateAudioFile mocks base method.
+func (m *MockAudioProcessorInterface) ValidateAudioFile(ctx context.Context, filePath string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ValidateAudioFile", ctx, filePath)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ValidateAudioFile indicates an expected call of ValidateAudioFile.
+func (mr *MockAudioProcessorInterfaceMockRecorder) ValidateAudioFile(ctx, filePath interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateAudioFile", reflect.TypeOf((*MockAudioProcessorInterface)(nil).ValidateAudioFile), ctx, filePath)
 }
 
 // MockStoragePathConfigInterface is a mock of StoragePathConfigInterface interface.
@@ -745,4 +788,694 @@ func (m *MockStoragePathConfigInterface) GetOriginalPath(trackID, extension stri
 func (mr *MockStoragePathConfigInterfaceMockRecorder) GetOriginalPath(trackID, extension interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOriginalPath", reflect.TypeOf((*MockStoragePathConfigInterface)(nil).GetOriginalPath), trackID, extension)
+}
+
+// MockCompressionServiceInterface is a mock of CompressionServiceInterface interface.
+type MockCompressionServiceInterface struct {
+	ctrl     *gomock.Controller
+	recorder *MockCompressionServiceInterfaceMockRecorder
+}
+
+// MockCompressionServiceInterfaceMockRecorder is the mock recorder for MockCompressionServiceInterface.
+type MockCompressionServiceInterfaceMockRecorder struct {
+	mock *MockCompressionServiceInterface
+}
+
+// NewMockCompressionServiceInterface creates a new mock instance.
+func NewMockCompressionServiceInterface(ctrl *gomock.Controller) *MockCompressionServiceInterface {
+	mock := &MockCompressionServiceInterface{ctrl: ctrl}
+	mock.recorder = &MockCompressionServiceInterfaceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockCompressionServiceInterface) EXPECT() *MockCompressionServiceInterfaceMockRecorder {
+	return m.recorder
+}
+
+// AddCompressionVersion mocks base method.
+func (m *MockCompressionServiceInterface) AddCompressionVersion(ctx context.Context, trackID string, version models.CompressionVersion) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddCompressionVersion", ctx, trackID, version)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddCompressionVersion indicates an expected call of AddCompressionVersion.
+func (mr *MockCompressionServiceInterfaceMockRecorder) AddCompressionVersion(ctx, trackID, version interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCompressionVersion", reflect.TypeOf((*MockCompressionServiceInterface)(nil).AddCompressionVersion), ctx, trackID, version)
+}
+
+// DeleteCompressionVersion mocks base method.
+func (m *MockCompressionServiceInterface) DeleteCompressionVersion(ctx context.Context, trackID, versionID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteCompressionVersion", ctx, trackID, versionID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteCompressionVersion indicates an expected call of DeleteCompressionVersion.
+func (mr *MockCompressionServiceInterfaceMockRecorder) DeleteCompressionVersion(ctx, trackID, versionID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCompressionVersion", reflect.TypeOf((*MockCompressionServiceInterface)(nil).DeleteCompressionVersion), ctx, trackID, versionID)
+}
+
+// GetCompressionStatus mocks base method.
+func (m *MockCompressionServiceInterface) GetCompressionStatus(ctx context.Context, trackID string) (*models.ProcessingStatus, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCompressionStatus", ctx, trackID)
+	ret0, _ := ret[0].(*models.ProcessingStatus)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCompressionStatus indicates an expected call of GetCompressionStatus.
+func (mr *MockCompressionServiceInterfaceMockRecorder) GetCompressionStatus(ctx, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCompressionStatus", reflect.TypeOf((*MockCompressionServiceInterface)(nil).GetCompressionStatus), ctx, trackID)
+}
+
+// GetPublicVersions mocks base method.
+func (m *MockCompressionServiceInterface) GetPublicVersions(ctx context.Context, trackID string) ([]models.CompressionVersion, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPublicVersions", ctx, trackID)
+	ret0, _ := ret[0].([]models.CompressionVersion)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPublicVersions indicates an expected call of GetPublicVersions.
+func (mr *MockCompressionServiceInterfaceMockRecorder) GetPublicVersions(ctx, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPublicVersions", reflect.TypeOf((*MockCompressionServiceInterface)(nil).GetPublicVersions), ctx, trackID)
+}
+
+// RequestCompression mocks base method.
+func (m *MockCompressionServiceInterface) RequestCompression(ctx context.Context, trackID string, options []models.CompressionOption) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RequestCompression", ctx, trackID, options)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RequestCompression indicates an expected call of RequestCompression.
+func (mr *MockCompressionServiceInterfaceMockRecorder) RequestCompression(ctx, trackID, options interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestCompression", reflect.TypeOf((*MockCompressionServiceInterface)(nil).RequestCompression), ctx, trackID, options)
+}
+
+// UpdateVersionVisibility mocks base method.
+func (m *MockCompressionServiceInterface) UpdateVersionVisibility(ctx context.Context, trackID, versionID string, isPublic bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateVersionVisibility", ctx, trackID, versionID, isPublic)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateVersionVisibility indicates an expected call of UpdateVersionVisibility.
+func (mr *MockCompressionServiceInterfaceMockRecorder) UpdateVersionVisibility(ctx, trackID, versionID, isPublic interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateVersionVisibility", reflect.TypeOf((*MockCompressionServiceInterface)(nil).UpdateVersionVisibility), ctx, trackID, versionID, isPublic)
+}
+
+// MockFileServerServiceInterface is a mock of FileServerServiceInterface interface.
+type MockFileServerServiceInterface struct {
+	ctrl     *gomock.Controller
+	recorder *MockFileServerServiceInterfaceMockRecorder
+}
+
+// MockFileServerServiceInterfaceMockRecorder is the mock recorder for MockFileServerServiceInterface.
+type MockFileServerServiceInterfaceMockRecorder struct {
+	mock *MockFileServerServiceInterface
+}
+
+// NewMockFileServerServiceInterface creates a new mock instance.
+func NewMockFileServerServiceInterface(ctrl *gomock.Controller) *MockFileServerServiceInterface {
+	mock := &MockFileServerServiceInterface{ctrl: ctrl}
+	mock.recorder = &MockFileServerServiceInterfaceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockFileServerServiceInterface) EXPECT() *MockFileServerServiceInterfaceMockRecorder {
+	return m.recorder
+}
+
+// DeleteFile mocks base method.
+func (m *MockFileServerServiceInterface) DeleteFile(ctx context.Context, path string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteFile", ctx, path)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteFile indicates an expected call of DeleteFile.
+func (mr *MockFileServerServiceInterfaceMockRecorder) DeleteFile(ctx, path interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFile", reflect.TypeOf((*MockFileServerServiceInterface)(nil).DeleteFile), ctx, path)
+}
+
+// DownloadFile mocks base method.
+func (m *MockFileServerServiceInterface) DownloadFile(ctx context.Context, path string) (io.ReadCloser, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DownloadFile", ctx, path)
+	ret0, _ := ret[0].(io.ReadCloser)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DownloadFile indicates an expected call of DownloadFile.
+func (mr *MockFileServerServiceInterfaceMockRecorder) DownloadFile(ctx, path interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DownloadFile", reflect.TypeOf((*MockFileServerServiceInterface)(nil).DownloadFile), ctx, path)
+}
+
+// GenerateUploadToken mocks base method.
+func (m *MockFileServerServiceInterface) GenerateUploadToken(ctx context.Context, path, userID string, expiration time.Duration) (*models.FileUploadToken, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateUploadToken", ctx, path, userID, expiration)
+	ret0, _ := ret[0].(*models.FileUploadToken)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GenerateUploadToken indicates an expected call of GenerateUploadToken.
+func (mr *MockFileServerServiceInterfaceMockRecorder) GenerateUploadToken(ctx, path, userID, expiration interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateUploadToken", reflect.TypeOf((*MockFileServerServiceInterface)(nil).GenerateUploadToken), ctx, path, userID, expiration)
+}
+
+// GetFileMetadata mocks base method.
+func (m *MockFileServerServiceInterface) GetFileMetadata(ctx context.Context, path string) (*models.FileMetadata, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFileMetadata", ctx, path)
+	ret0, _ := ret[0].(*models.FileMetadata)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFileMetadata indicates an expected call of GetFileMetadata.
+func (mr *MockFileServerServiceInterfaceMockRecorder) GetFileMetadata(ctx, path interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFileMetadata", reflect.TypeOf((*MockFileServerServiceInterface)(nil).GetFileMetadata), ctx, path)
+}
+
+// ListFiles mocks base method.
+func (m *MockFileServerServiceInterface) ListFiles(ctx context.Context, prefix string) ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListFiles", ctx, prefix)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListFiles indicates an expected call of ListFiles.
+func (mr *MockFileServerServiceInterfaceMockRecorder) ListFiles(ctx, prefix interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListFiles", reflect.TypeOf((*MockFileServerServiceInterface)(nil).ListFiles), ctx, prefix)
+}
+
+// UploadFile mocks base method.
+func (m *MockFileServerServiceInterface) UploadFile(ctx context.Context, path string, data io.Reader, contentType string) (*models.FileMetadata, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadFile", ctx, path, data, contentType)
+	ret0, _ := ret[0].(*models.FileMetadata)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UploadFile indicates an expected call of UploadFile.
+func (mr *MockFileServerServiceInterfaceMockRecorder) UploadFile(ctx, path, data, contentType interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadFile", reflect.TypeOf((*MockFileServerServiceInterface)(nil).UploadFile), ctx, path, data, contentType)
+}
+
+// MockMockStorageServiceInterface is a mock of MockStorageServiceInterface interface.
+type MockMockStorageServiceInterface struct {
+	ctrl     *gomock.Controller
+	recorder *MockMockStorageServiceInterfaceMockRecorder
+}
+
+// MockMockStorageServiceInterfaceMockRecorder is the mock recorder for MockMockStorageServiceInterface.
+type MockMockStorageServiceInterfaceMockRecorder struct {
+	mock *MockMockStorageServiceInterface
+}
+
+// NewMockMockStorageServiceInterface creates a new mock instance.
+func NewMockMockStorageServiceInterface(ctrl *gomock.Controller) *MockMockStorageServiceInterface {
+	mock := &MockMockStorageServiceInterface{ctrl: ctrl}
+	mock.recorder = &MockMockStorageServiceInterfaceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockMockStorageServiceInterface) EXPECT() *MockMockStorageServiceInterfaceMockRecorder {
+	return m.recorder
+}
+
+// CreateBucket mocks base method.
+func (m *MockMockStorageServiceInterface) CreateBucket(ctx context.Context, bucket, location string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateBucket", ctx, bucket, location)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateBucket indicates an expected call of CreateBucket.
+func (mr *MockMockStorageServiceInterfaceMockRecorder) CreateBucket(ctx, bucket, location interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBucket", reflect.TypeOf((*MockMockStorageServiceInterface)(nil).CreateBucket), ctx, bucket, location)
+}
+
+// DeleteFile mocks base method.
+func (m *MockMockStorageServiceInterface) DeleteFile(ctx context.Context, bucket, path string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteFile", ctx, bucket, path)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteFile indicates an expected call of DeleteFile.
+func (mr *MockMockStorageServiceInterfaceMockRecorder) DeleteFile(ctx, bucket, path interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFile", reflect.TypeOf((*MockMockStorageServiceInterface)(nil).DeleteFile), ctx, bucket, path)
+}
+
+// DownloadFile mocks base method.
+func (m *MockMockStorageServiceInterface) DownloadFile(ctx context.Context, bucket, path string) (io.ReadCloser, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DownloadFile", ctx, bucket, path)
+	ret0, _ := ret[0].(io.ReadCloser)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DownloadFile indicates an expected call of DownloadFile.
+func (mr *MockMockStorageServiceInterfaceMockRecorder) DownloadFile(ctx, bucket, path interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DownloadFile", reflect.TypeOf((*MockMockStorageServiceInterface)(nil).DownloadFile), ctx, bucket, path)
+}
+
+// GetBucketInfo mocks base method.
+func (m *MockMockStorageServiceInterface) GetBucketInfo(ctx context.Context, bucket string) (*models.BucketInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBucketInfo", ctx, bucket)
+	ret0, _ := ret[0].(*models.BucketInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBucketInfo indicates an expected call of GetBucketInfo.
+func (mr *MockMockStorageServiceInterfaceMockRecorder) GetBucketInfo(ctx, bucket interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBucketInfo", reflect.TypeOf((*MockMockStorageServiceInterface)(nil).GetBucketInfo), ctx, bucket)
+}
+
+// HealthCheck mocks base method.
+func (m *MockMockStorageServiceInterface) HealthCheck(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HealthCheck", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// HealthCheck indicates an expected call of HealthCheck.
+func (mr *MockMockStorageServiceInterfaceMockRecorder) HealthCheck(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HealthCheck", reflect.TypeOf((*MockMockStorageServiceInterface)(nil).HealthCheck), ctx)
+}
+
+// ListFiles mocks base method.
+func (m *MockMockStorageServiceInterface) ListFiles(ctx context.Context, bucket, prefix string) ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListFiles", ctx, bucket, prefix)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListFiles indicates an expected call of ListFiles.
+func (mr *MockMockStorageServiceInterfaceMockRecorder) ListFiles(ctx, bucket, prefix interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListFiles", reflect.TypeOf((*MockMockStorageServiceInterface)(nil).ListFiles), ctx, bucket, prefix)
+}
+
+// UploadFile mocks base method.
+func (m *MockMockStorageServiceInterface) UploadFile(ctx context.Context, bucket, path string, data io.Reader, contentType string) (*models.FileMetadata, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadFile", ctx, bucket, path, data, contentType)
+	ret0, _ := ret[0].(*models.FileMetadata)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UploadFile indicates an expected call of UploadFile.
+func (mr *MockMockStorageServiceInterfaceMockRecorder) UploadFile(ctx, bucket, path, data, contentType interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadFile", reflect.TypeOf((*MockMockStorageServiceInterface)(nil).UploadFile), ctx, bucket, path, data, contentType)
+}
+
+// MockDevelopmentServiceInterface is a mock of DevelopmentServiceInterface interface.
+type MockDevelopmentServiceInterface struct {
+	ctrl     *gomock.Controller
+	recorder *MockDevelopmentServiceInterfaceMockRecorder
+}
+
+// MockDevelopmentServiceInterfaceMockRecorder is the mock recorder for MockDevelopmentServiceInterface.
+type MockDevelopmentServiceInterfaceMockRecorder struct {
+	mock *MockDevelopmentServiceInterface
+}
+
+// NewMockDevelopmentServiceInterface creates a new mock instance.
+func NewMockDevelopmentServiceInterface(ctrl *gomock.Controller) *MockDevelopmentServiceInterface {
+	mock := &MockDevelopmentServiceInterface{ctrl: ctrl}
+	mock.recorder = &MockDevelopmentServiceInterfaceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockDevelopmentServiceInterface) EXPECT() *MockDevelopmentServiceInterfaceMockRecorder {
+	return m.recorder
+}
+
+// ClearCache mocks base method.
+func (m *MockDevelopmentServiceInterface) ClearCache(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ClearCache", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ClearCache indicates an expected call of ClearCache.
+func (mr *MockDevelopmentServiceInterfaceMockRecorder) ClearCache(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearCache", reflect.TypeOf((*MockDevelopmentServiceInterface)(nil).ClearCache), ctx)
+}
+
+// GenerateTestFiles mocks base method.
+func (m *MockDevelopmentServiceInterface) GenerateTestFiles(ctx context.Context, count int) ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateTestFiles", ctx, count)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GenerateTestFiles indicates an expected call of GenerateTestFiles.
+func (mr *MockDevelopmentServiceInterfaceMockRecorder) GenerateTestFiles(ctx, count interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateTestFiles", reflect.TypeOf((*MockDevelopmentServiceInterface)(nil).GenerateTestFiles), ctx, count)
+}
+
+// GetLogs mocks base method.
+func (m *MockDevelopmentServiceInterface) GetLogs(ctx context.Context, level string, limit int) ([]models.LogEntry, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLogs", ctx, level, limit)
+	ret0, _ := ret[0].([]models.LogEntry)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLogs indicates an expected call of GetLogs.
+func (mr *MockDevelopmentServiceInterfaceMockRecorder) GetLogs(ctx, level, limit interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLogs", reflect.TypeOf((*MockDevelopmentServiceInterface)(nil).GetLogs), ctx, level, limit)
+}
+
+// GetSystemInfo mocks base method.
+func (m *MockDevelopmentServiceInterface) GetSystemInfo(ctx context.Context) (*models.SystemInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSystemInfo", ctx)
+	ret0, _ := ret[0].(*models.SystemInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSystemInfo indicates an expected call of GetSystemInfo.
+func (mr *MockDevelopmentServiceInterfaceMockRecorder) GetSystemInfo(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSystemInfo", reflect.TypeOf((*MockDevelopmentServiceInterface)(nil).GetSystemInfo), ctx)
+}
+
+// ResetDatabase mocks base method.
+func (m *MockDevelopmentServiceInterface) ResetDatabase(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ResetDatabase", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ResetDatabase indicates an expected call of ResetDatabase.
+func (mr *MockDevelopmentServiceInterfaceMockRecorder) ResetDatabase(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResetDatabase", reflect.TypeOf((*MockDevelopmentServiceInterface)(nil).ResetDatabase), ctx)
+}
+
+// SeedTestData mocks base method.
+func (m *MockDevelopmentServiceInterface) SeedTestData(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SeedTestData", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SeedTestData indicates an expected call of SeedTestData.
+func (mr *MockDevelopmentServiceInterfaceMockRecorder) SeedTestData(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SeedTestData", reflect.TypeOf((*MockDevelopmentServiceInterface)(nil).SeedTestData), ctx)
+}
+
+// SimulateLoad mocks base method.
+func (m *MockDevelopmentServiceInterface) SimulateLoad(ctx context.Context, duration time.Duration) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SimulateLoad", ctx, duration)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SimulateLoad indicates an expected call of SimulateLoad.
+func (mr *MockDevelopmentServiceInterfaceMockRecorder) SimulateLoad(ctx, duration interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SimulateLoad", reflect.TypeOf((*MockDevelopmentServiceInterface)(nil).SimulateLoad), ctx, duration)
+}
+
+// MockTokenServiceInterface is a mock of TokenServiceInterface interface.
+type MockTokenServiceInterface struct {
+	ctrl     *gomock.Controller
+	recorder *MockTokenServiceInterfaceMockRecorder
+}
+
+// MockTokenServiceInterfaceMockRecorder is the mock recorder for MockTokenServiceInterface.
+type MockTokenServiceInterfaceMockRecorder struct {
+	mock *MockTokenServiceInterface
+}
+
+// NewMockTokenServiceInterface creates a new mock instance.
+func NewMockTokenServiceInterface(ctrl *gomock.Controller) *MockTokenServiceInterface {
+	mock := &MockTokenServiceInterface{ctrl: ctrl}
+	mock.recorder = &MockTokenServiceInterfaceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockTokenServiceInterface) EXPECT() *MockTokenServiceInterfaceMockRecorder {
+	return m.recorder
+}
+
+// GenerateDeleteToken mocks base method.
+func (m *MockTokenServiceInterface) GenerateDeleteToken(ctx context.Context, path, userID string, expiration time.Duration) (*models.FileUploadToken, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateDeleteToken", ctx, path, userID, expiration)
+	ret0, _ := ret[0].(*models.FileUploadToken)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GenerateDeleteToken indicates an expected call of GenerateDeleteToken.
+func (mr *MockTokenServiceInterfaceMockRecorder) GenerateDeleteToken(ctx, path, userID, expiration interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateDeleteToken", reflect.TypeOf((*MockTokenServiceInterface)(nil).GenerateDeleteToken), ctx, path, userID, expiration)
+}
+
+// GenerateUploadToken mocks base method.
+func (m *MockTokenServiceInterface) GenerateUploadToken(ctx context.Context, path, userID string, expiration time.Duration) (*models.FileUploadToken, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateUploadToken", ctx, path, userID, expiration)
+	ret0, _ := ret[0].(*models.FileUploadToken)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GenerateUploadToken indicates an expected call of GenerateUploadToken.
+func (mr *MockTokenServiceInterfaceMockRecorder) GenerateUploadToken(ctx, path, userID, expiration interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateUploadToken", reflect.TypeOf((*MockTokenServiceInterface)(nil).GenerateUploadToken), ctx, path, userID, expiration)
+}
+
+// ListActiveTokens mocks base method.
+func (m *MockTokenServiceInterface) ListActiveTokens(ctx context.Context, userID string) ([]models.FileUploadToken, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListActiveTokens", ctx, userID)
+	ret0, _ := ret[0].([]models.FileUploadToken)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListActiveTokens indicates an expected call of ListActiveTokens.
+func (mr *MockTokenServiceInterfaceMockRecorder) ListActiveTokens(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListActiveTokens", reflect.TypeOf((*MockTokenServiceInterface)(nil).ListActiveTokens), ctx, userID)
+}
+
+// RefreshToken mocks base method.
+func (m *MockTokenServiceInterface) RefreshToken(ctx context.Context, token string, expiration time.Duration) (*models.FileUploadToken, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RefreshToken", ctx, token, expiration)
+	ret0, _ := ret[0].(*models.FileUploadToken)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RefreshToken indicates an expected call of RefreshToken.
+func (mr *MockTokenServiceInterfaceMockRecorder) RefreshToken(ctx, token, expiration interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RefreshToken", reflect.TypeOf((*MockTokenServiceInterface)(nil).RefreshToken), ctx, token, expiration)
+}
+
+// RevokeToken mocks base method.
+func (m *MockTokenServiceInterface) RevokeToken(ctx context.Context, token string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RevokeToken", ctx, token)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RevokeToken indicates an expected call of RevokeToken.
+func (mr *MockTokenServiceInterfaceMockRecorder) RevokeToken(ctx, token interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RevokeToken", reflect.TypeOf((*MockTokenServiceInterface)(nil).RevokeToken), ctx, token)
+}
+
+// ValidateToken mocks base method.
+func (m *MockTokenServiceInterface) ValidateToken(ctx context.Context, token, path string) (*models.FileUploadToken, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ValidateToken", ctx, token, path)
+	ret0, _ := ret[0].(*models.FileUploadToken)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ValidateToken indicates an expected call of ValidateToken.
+func (mr *MockTokenServiceInterfaceMockRecorder) ValidateToken(ctx, token, path interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateToken", reflect.TypeOf((*MockTokenServiceInterface)(nil).ValidateToken), ctx, token, path)
+}
+
+// MockWebhookServiceInterface is a mock of WebhookServiceInterface interface.
+type MockWebhookServiceInterface struct {
+	ctrl     *gomock.Controller
+	recorder *MockWebhookServiceInterfaceMockRecorder
+}
+
+// MockWebhookServiceInterfaceMockRecorder is the mock recorder for MockWebhookServiceInterface.
+type MockWebhookServiceInterfaceMockRecorder struct {
+	mock *MockWebhookServiceInterface
+}
+
+// NewMockWebhookServiceInterface creates a new mock instance.
+func NewMockWebhookServiceInterface(ctrl *gomock.Controller) *MockWebhookServiceInterface {
+	mock := &MockWebhookServiceInterface{ctrl: ctrl}
+	mock.recorder = &MockWebhookServiceInterfaceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockWebhookServiceInterface) EXPECT() *MockWebhookServiceInterfaceMockRecorder {
+	return m.recorder
+}
+
+// GetWebhookStatus mocks base method.
+func (m *MockWebhookServiceInterface) GetWebhookStatus(ctx context.Context, webhookID string) (*models.ProcessingStatus, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWebhookStatus", ctx, webhookID)
+	ret0, _ := ret[0].(*models.ProcessingStatus)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetWebhookStatus indicates an expected call of GetWebhookStatus.
+func (mr *MockWebhookServiceInterfaceMockRecorder) GetWebhookStatus(ctx, webhookID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWebhookStatus", reflect.TypeOf((*MockWebhookServiceInterface)(nil).GetWebhookStatus), ctx, webhookID)
+}
+
+// ProcessCloudFunctionWebhook mocks base method.
+func (m *MockWebhookServiceInterface) ProcessCloudFunctionWebhook(ctx context.Context, payload models.WebhookPayload) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProcessCloudFunctionWebhook", ctx, payload)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ProcessCloudFunctionWebhook indicates an expected call of ProcessCloudFunctionWebhook.
+func (mr *MockWebhookServiceInterfaceMockRecorder) ProcessCloudFunctionWebhook(ctx, payload interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProcessCloudFunctionWebhook", reflect.TypeOf((*MockWebhookServiceInterface)(nil).ProcessCloudFunctionWebhook), ctx, payload)
+}
+
+// ProcessNostrRelayWebhook mocks base method.
+func (m *MockWebhookServiceInterface) ProcessNostrRelayWebhook(ctx context.Context, payload models.WebhookPayload) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProcessNostrRelayWebhook", ctx, payload)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ProcessNostrRelayWebhook indicates an expected call of ProcessNostrRelayWebhook.
+func (mr *MockWebhookServiceInterfaceMockRecorder) ProcessNostrRelayWebhook(ctx, payload interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProcessNostrRelayWebhook", reflect.TypeOf((*MockWebhookServiceInterface)(nil).ProcessNostrRelayWebhook), ctx, payload)
+}
+
+// ProcessStorageWebhook mocks base method.
+func (m *MockWebhookServiceInterface) ProcessStorageWebhook(ctx context.Context, payload models.WebhookPayload) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProcessStorageWebhook", ctx, payload)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ProcessStorageWebhook indicates an expected call of ProcessStorageWebhook.
+func (mr *MockWebhookServiceInterfaceMockRecorder) ProcessStorageWebhook(ctx, payload interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProcessStorageWebhook", reflect.TypeOf((*MockWebhookServiceInterface)(nil).ProcessStorageWebhook), ctx, payload)
+}
+
+// RetryFailedWebhooks mocks base method.
+func (m *MockWebhookServiceInterface) RetryFailedWebhooks(ctx context.Context, maxRetries int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RetryFailedWebhooks", ctx, maxRetries)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RetryFailedWebhooks indicates an expected call of RetryFailedWebhooks.
+func (mr *MockWebhookServiceInterfaceMockRecorder) RetryFailedWebhooks(ctx, maxRetries interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RetryFailedWebhooks", reflect.TypeOf((*MockWebhookServiceInterface)(nil).RetryFailedWebhooks), ctx, maxRetries)
+}
+
+// ValidateWebhookSignature mocks base method.
+func (m *MockWebhookServiceInterface) ValidateWebhookSignature(payload []byte, signature, secret string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ValidateWebhookSignature", payload, signature, secret)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ValidateWebhookSignature indicates an expected call of ValidateWebhookSignature.
+func (mr *MockWebhookServiceInterfaceMockRecorder) ValidateWebhookSignature(payload, signature, secret interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateWebhookSignature", reflect.TypeOf((*MockWebhookServiceInterface)(nil).ValidateWebhookSignature), payload, signature, secret)
 }

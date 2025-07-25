@@ -92,7 +92,7 @@ tasks:
     cmds:
       - task: dev:services &
       - sleep 5
-      - cd {{.BACKEND_DIR}} && ginkgo watch -r --notify -tags=integration ./tests/integration
+      - cd {{.BACKEND_DIR}} && ginkgo watch -r --notify -tags=emulator ./tests/integration
 
   # === Red-Green-Refactor Helpers ===
   red:
@@ -177,11 +177,9 @@ tasks:
 
   # === Testing Commands (TDD-Focused) ===
   test:
-    desc: "Run complete test suite (unit + integration + e2e)"
+    desc: "Run complete test suite (unit tests only - integration and e2e require external services)"
     cmds:
       - task: test:unit
-      - task: test:integration  
-      - task: test:e2e
 
   test:unit:
     desc: "Run all unit tests"
@@ -210,17 +208,18 @@ tasks:
   test:unit:backend:
     desc: "Run Go unit tests with coverage"
     cmds:
-      - cd {{.BACKEND_DIR}} && ginkgo -r --cover --coverprofile=coverage.out
+      - cd {{.BACKEND_DIR}} && mkdir -p tests/coverage
+      - cd {{.BACKEND_DIR}} && ginkgo run -r --cover --coverprofile=coverage.out --output-dir=tests/coverage --skip-package=tests/integration
 
   test:unit:backend:fast:
     desc: "Run Go unit tests (fast mode, no coverage)"
     cmds:
-      - cd {{.BACKEND_DIR}} && ginkgo -r --randomizeAllSpecs
+      - cd {{.BACKEND_DIR}} && ginkgo run -r --randomizeAllSpecs --skip-package=tests/integration
 
   test:integration:
     desc: "Run integration tests"
     cmds:
-      - cd {{.BACKEND_DIR}} && ginkgo -r -tags=integration ./tests/integration
+      - cd {{.BACKEND_DIR}} && ginkgo run -r --tags=emulator ./tests/integration
 
   test:integration:staging:
     desc: "Run all integration tests against staging environment"
@@ -367,9 +366,10 @@ tasks:
   coverage:backend:
     desc: "Generate Go test coverage report"
     cmds:
-      - "cd {{.BACKEND_DIR}} && ginkgo -r --cover --coverprofile=coverage.out"
-      - "cd {{.BACKEND_DIR}} && go tool cover -html=coverage.out -o coverage.html"
-      - "echo 'Backend coverage report: {{.BACKEND_DIR}}/coverage.html'"
+      - "cd {{.BACKEND_DIR}} && mkdir -p tests/coverage"
+      - "cd {{.BACKEND_DIR}} && ginkgo -r --cover --coverprofile=coverage.out --output-dir=tests/coverage --skip-package=tests/integration"
+      - "cd {{.BACKEND_DIR}} && go tool cover -html=tests/coverage/coverage.out -o tests/coverage/coverage.html"
+      - "echo 'Backend coverage report: {{.BACKEND_DIR}}/tests/coverage/coverage.html'"
 
   coverage:frontend:
     desc: "Generate frontend test coverage report"

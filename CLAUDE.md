@@ -15,6 +15,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **This documentation serves as the primary reference for understanding the codebase and must remain current and accurate.**
 
+## 🧪 CRITICAL: Test Validation Requirement
+
+**MANDATORY TEST VALIDATION**: After any code changes or test modifications made by Claude, the ultimate task item must be to ensure all tests are passing. If tests are not passing, Claude must address the failures before considering the work complete.
+
+**Test Validation Process**:
+1. **After any code change**: Run appropriate test suite (`task test:unit:backend` for backend, `task test:unit:frontend` for frontend)
+2. **After any test modification**: Verify all tests pass with `task test:unit` or `ginkgo run`
+3. **Before marking tasks complete**: Confirm test suite passes with exit code 0
+4. **On test failures**: Identify root cause and fix failing tests immediately
+5. **Quality gate**: No work is considered complete until all tests pass
+
+**Test Commands for Validation**:
+```bash
+# Backend changes - run backend tests
+task test:unit:backend        # Unit tests with coverage
+ginkgo run ./internal/...     # Specific package tests
+
+# Frontend changes - run frontend tests  
+task test:unit:frontend       # Frontend test suite
+
+# Full validation after major changes
+task quality:check            # Comprehensive: lint + test + coverage + build
+```
+
+**This requirement ensures code quality, prevents regressions, and maintains the TDD-focused development approach of this monorepo.**
+
 ## ⚠️ API Migration Status
 
 **IMPORTANT**: The monorepo backend is a simplified implementation compared to the original `/dev/wavlake/api`. See `apps/backend/MIGRATION.md` for a comprehensive analysis of missing functionality including:

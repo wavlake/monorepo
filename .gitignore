@@ -7,6 +7,7 @@ apps/backend/bin/
 *.exe
 
 # Go build cache and test coverage
+apps/backend/tests/coverage/
 apps/backend/coverage.out
 apps/backend/coverage.html
 apps/backend/coverage_*.out
@@ -14,6 +15,8 @@ apps/backend/handlers_coverage.out
 apps/backend/coverage_full.out
 apps/backend/coverage_all.out
 apps/backend/coverprofile.out
+apps/backend/auth_coverage.out
+apps/backend/auth_coverage.html
 *.coverprofile
 
 # Frontend coverage

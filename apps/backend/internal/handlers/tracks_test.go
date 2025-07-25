@@ -3,6 +3,7 @@ package handlers_test
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo/v2"
@@ -121,6 +122,68 @@ var _ = Describe("TracksHandler", func() {
 				mockAudioProcessor.EXPECT().
 					IsFormatSupported("txt").
 					Return(false)
+
+				tracksHandler.CreateTrackNostr(c)
+
+				Expect(w.Code).To(Equal(http.StatusBadRequest))
+				response := testutil.AssertJSONResponse(w, http.StatusBadRequest)
+				Expect(response["success"]).To(BeFalse())
+				Expect(response["error"]).To(Equal("unsupported audio format"))
+			})
+
+			It("should handle malformed JSON gracefully", func() {
+				c, w := testutil.SetupGinTestContext("POST", "/v1/tracks", "{malformed json")
+				testutil.SetAuthContext(c, testFirebaseUID, testPubkey)
+
+				tracksHandler.CreateTrackNostr(c)
+
+				Expect(w.Code).To(Equal(http.StatusBadRequest))
+				response := testutil.AssertJSONResponse(w, http.StatusBadRequest)
+				Expect(response["success"]).To(BeFalse())
+				Expect(response["error"]).To(Equal("extension field is required"))
+			})
+
+			It("should handle empty extension string", func() {
+				c, w := testutil.SetupGinTestContext("POST", "/v1/tracks", map[string]interface{}{
+					"extension": "",
+				})
+				testutil.SetAuthContext(c, testFirebaseUID, testPubkey)
+
+				tracksHandler.CreateTrackNostr(c)
+
+				Expect(w.Code).To(Equal(http.StatusBadRequest))
+				response := testutil.AssertJSONResponse(w, http.StatusBadRequest)
+				Expect(response["success"]).To(BeFalse())
+				Expect(response["error"]).To(Equal("extension field is required"))
+			})
+
+			It("should handle very long extension string", func() {
+				c, w := testutil.SetupGinTestContext("POST", "/v1/tracks", map[string]interface{}{
+					"extension": strings.Repeat("a", 1000), // Very long extension
+				})
+				testutil.SetAuthContext(c, testFirebaseUID, testPubkey)
+
+				mockAudioProcessor.EXPECT().
+					IsFormatSupported(strings.Repeat("a", 1000)).
+					Return(false)
+
+				tracksHandler.CreateTrackNostr(c)
+
+				Expect(w.Code).To(Equal(http.StatusBadRequest))
+				response := testutil.AssertJSONResponse(w, http.StatusBadRequest)
+				Expect(response["success"]).To(BeFalse())
+				Expect(response["error"]).To(Equal("unsupported audio format"))
+			})
+
+			It("should handle case-sensitive extension validation", func() {
+				c, w := testutil.SetupGinTestContext("POST", "/v1/tracks", map[string]interface{}{
+					"extension": "MP3", // Uppercase version
+				})
+				testutil.SetAuthContext(c, testFirebaseUID, testPubkey)
+
+				mockAudioProcessor.EXPECT().
+					IsFormatSupported("MP3").
+					Return(false) // Assuming case-sensitive validation
 
 				tracksHandler.CreateTrackNostr(c)
 

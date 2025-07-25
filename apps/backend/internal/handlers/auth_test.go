@@ -120,6 +120,66 @@ var _ = Describe("AuthHandlers", func() {
 				Expect(response["error"]).To(Equal(expectedError.Error()))
 			})
 		})
+
+		Context("when request body contains malformed JSON", func() {
+			It("should handle malformed JSON gracefully and continue with authentication", func() {
+				c, w := testutil.SetupGinTestContext("POST", "/v1/auth/link-pubkey", "{malformed json")
+				testutil.SetAuthContext(c, testFirebaseUID, testPubkey)
+
+				mockUserService.EXPECT().
+					LinkPubkeyToUser(c.Request.Context(), testPubkey, testFirebaseUID).
+					Return(nil)
+
+				authHandlers.LinkPubkey(c)
+
+				Expect(w.Code).To(Equal(http.StatusOK))
+				response := testutil.AssertJSONResponse(w, http.StatusOK)
+				Expect(response["success"]).To(BeTrue())
+			})
+		})
+
+		Context("when auth context has wrong types", func() {
+			It("should handle firebase_uid type assertion panic", func() {
+				c, _ := testutil.SetupGinTestContext("POST", "/v1/auth/link-pubkey", 
+					testutil.ValidLinkPubkeyRequest())
+				c.Set("firebase_uid", 12345) // Wrong type - should be string
+				c.Set("nostr_pubkey", testPubkey)
+
+				Expect(func() {
+					authHandlers.LinkPubkey(c)
+				}).To(Panic())
+			})
+
+			It("should handle nostr_pubkey type assertion panic", func() {
+				c, _ := testutil.SetupGinTestContext("POST", "/v1/auth/link-pubkey", 
+					testutil.ValidLinkPubkeyRequest())
+				c.Set("firebase_uid", testFirebaseUID)
+				c.Set("nostr_pubkey", 12345) // Wrong type - should be string
+
+				Expect(func() {
+					authHandlers.LinkPubkey(c)
+				}).To(Panic())
+			})
+		})
+
+		Context("when request body has empty pubkey", func() {
+			It("should successfully link without validating empty request pubkey", func() {
+				c, w := testutil.SetupGinTestContext("POST", "/v1/auth/link-pubkey", map[string]interface{}{
+					"pubkey": "",
+				})
+				testutil.SetAuthContext(c, testFirebaseUID, testPubkey)
+
+				mockUserService.EXPECT().
+					LinkPubkeyToUser(c.Request.Context(), testPubkey, testFirebaseUID).
+					Return(nil)
+
+				authHandlers.LinkPubkey(c)
+
+				Expect(w.Code).To(Equal(http.StatusOK))
+				response := testutil.AssertJSONResponse(w, http.StatusOK)
+				Expect(response["success"]).To(BeTrue())
+			})
+		})
 	})
 
 	Describe("UnlinkPubkey", func() {
@@ -188,6 +248,46 @@ var _ = Describe("AuthHandlers", func() {
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
 				response := testutil.AssertJSONResponse(w, http.StatusBadRequest)
 				Expect(response["error"]).To(Equal(expectedError.Error()))
+			})
+		})
+
+		Context("when request contains malformed JSON", func() {
+			It("should return bad request error for malformed JSON", func() {
+				c, w := testutil.SetupGinTestContext("POST", "/v1/auth/unlink-pubkey", "{malformed json")
+				testutil.SetAuthContext(c, testFirebaseUID, "")
+
+				authHandlers.UnlinkPubkey(c)
+
+				Expect(w.Code).To(Equal(http.StatusBadRequest))
+				response := testutil.AssertJSONResponse(w, http.StatusBadRequest)
+				Expect(response["error"]).To(Equal("Invalid request body"))
+			})
+		})
+
+		Context("when pubkey field is empty string", func() {
+			It("should return bad request error for empty pubkey", func() {
+				c, w := testutil.SetupGinTestContext("POST", "/v1/auth/unlink-pubkey", map[string]interface{}{
+					"pubkey": "",
+				})
+				testutil.SetAuthContext(c, testFirebaseUID, "")
+
+				authHandlers.UnlinkPubkey(c)
+
+				Expect(w.Code).To(Equal(http.StatusBadRequest))
+				response := testutil.AssertJSONResponse(w, http.StatusBadRequest)
+				Expect(response["error"]).To(Equal("Invalid request body"))
+			})
+		})
+
+		Context("when Firebase UID context has wrong type", func() {
+			It("should handle firebase_uid type assertion panic", func() {
+				c, _ := testutil.SetupGinTestContext("POST", "/v1/auth/unlink-pubkey", 
+					testutil.ValidUnlinkPubkeyRequest())
+				c.Set("firebase_uid", 12345) // Wrong type - should be string
+
+				Expect(func() {
+					authHandlers.UnlinkPubkey(c)
+				}).To(Panic())
 			})
 		})
 	})
@@ -271,6 +371,17 @@ var _ = Describe("AuthHandlers", func() {
 				response := testutil.AssertJSONResponse(w, http.StatusInternalServerError)
 				Expect(response["error"]).To(Equal("Failed to retrieve linked pubkeys"))
 				Expect(response["debug"]).To(Equal(expectedError.Error()))
+			})
+		})
+
+		Context("when Firebase UID context has wrong type", func() {
+			It("should handle firebase_uid type assertion panic", func() {
+				c, _ := testutil.SetupGinTestContext("GET", "/v1/auth/get-linked-pubkeys", nil)
+				c.Set("firebase_uid", 12345) // Wrong type - should be string
+
+				Expect(func() {
+					authHandlers.GetLinkedPubkeys(c)
+				}).To(Panic())
 			})
 		})
 	})
@@ -366,13 +477,53 @@ var _ = Describe("AuthHandlers", func() {
 				c, w := testutil.SetupGinTestContext("POST", "/v1/auth/check-pubkey-link", map[string]interface{}{
 					// Missing required pubkey field
 				})
-				testutil.SetAuthContext(c, "", testPubkey)
+				c.Set("pubkey", testPubkey) // Use "pubkey" not "nostr_pubkey"
 
 				authHandlers.CheckPubkeyLink(c)
 
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
 				response := testutil.AssertJSONResponse(w, http.StatusBadRequest)
 				Expect(response["error"]).To(Equal("Invalid request body - pubkey is required"))
+			})
+		})
+
+		Context("when request contains malformed JSON", func() {
+			It("should return bad request error for malformed JSON", func() {
+				c, w := testutil.SetupGinTestContext("POST", "/v1/auth/check-pubkey-link", "{malformed json")
+				c.Set("pubkey", testPubkey) // Use "pubkey" not "nostr_pubkey"
+
+				authHandlers.CheckPubkeyLink(c)
+
+				Expect(w.Code).To(Equal(http.StatusBadRequest))
+				response := testutil.AssertJSONResponse(w, http.StatusBadRequest)
+				Expect(response["error"]).To(Equal("Invalid request body - pubkey is required"))
+			})
+		})
+
+		Context("when request pubkey doesn't match authenticated pubkey", func() {
+			It("should return forbidden error for pubkey mismatch", func() {
+				c, w := testutil.SetupGinTestContext("POST", "/v1/auth/check-pubkey-link", map[string]interface{}{
+					"pubkey": "different-pubkey-than-authenticated",
+				})
+				c.Set("pubkey", testPubkey) // Use "pubkey" not "nostr_pubkey"
+
+				authHandlers.CheckPubkeyLink(c)
+
+				Expect(w.Code).To(Equal(http.StatusForbidden))
+				response := testutil.AssertJSONResponse(w, http.StatusForbidden)
+				Expect(response["error"]).To(Equal("You can only check linking status for your own pubkey"))
+			})
+		})
+
+		Context("when pubkey context has wrong type", func() {
+			It("should handle pubkey type assertion panic", func() {
+				c, _ := testutil.SetupGinTestContext("POST", "/v1/auth/check-pubkey-link", 
+					testutil.ValidCheckPubkeyLinkRequest())
+				c.Set("pubkey", 12345) // Wrong type - should be string
+
+				Expect(func() {
+					authHandlers.CheckPubkeyLink(c)
+				}).To(Panic())
 			})
 		})
 

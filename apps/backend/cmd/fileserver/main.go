@@ -170,7 +170,7 @@ func (fs *FileServer) handleStatus(c *gin.Context) {
 }
 
 func main() {
-	port := os.Getenv("PORT")
+	port := os.Getenv("FILESERVER_PORT")
 	if port == "" {
 		port = "8081"
 	}

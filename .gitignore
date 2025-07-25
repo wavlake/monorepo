@@ -17,6 +17,8 @@ apps/backend/coverage_all.out
 apps/backend/coverprofile.out
 apps/backend/auth_coverage.out
 apps/backend/auth_coverage.html
+apps/backend/internal/utils/coverage.out
+apps/backend/internal/utils/utils_coverage.out
 *.coverprofile
 
 # Frontend coverage

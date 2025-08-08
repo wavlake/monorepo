@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "nostr": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "xjsr", "@nostrbook/mcp"],
+      "description": "Nostr protocol MCP server for fetching latest NIP specifications and Nostr information"
+    }
+  }
+}

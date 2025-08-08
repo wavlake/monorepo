@@ -4,6 +4,7 @@ node_modules
 apps/backend/api
 apps/backend/fileserver
 apps/backend/bin/
+apps/frontend/dist/
 *.exe
 
 # Go build cache and test coverage

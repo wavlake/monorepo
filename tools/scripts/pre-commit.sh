@@ -44,7 +44,7 @@ TYPES_CHANGED=false
 SERVICE_LEVEL_CHANGED=false
 
 # Check what has changed
-if has_staged_changes "apps/frontend"; then
+if has_staged_changes "apps/web"; then
     FRONTEND_CHANGED=true
     print_status "Frontend changes detected"
 fi
@@ -98,7 +98,7 @@ if [ "$FRONTEND_CHANGED" = true ]; then
     
     # Run frontend formatting (and stage changes)
     task format:frontend
-    git add apps/frontend/
+    git add apps/web/
     
     print_status "Frontend linting passed"
 fi
@@ -196,7 +196,7 @@ fi
 
 # Check for console.log in frontend files (excluding test files)
 if [ "$FRONTEND_CHANGED" = true ]; then
-    CONSOLE_LOGS=$(git diff --cached --name-only | grep "apps/frontend" | grep -E "\.(ts|tsx|js|jsx)$" | grep -v test | xargs grep -l "console\." 2>/dev/null || true)
+    CONSOLE_LOGS=$(git diff --cached --name-only | grep "apps/web" | grep -E "\.(ts|tsx|js|jsx)$" | grep -v test | xargs grep -l "console\." 2>/dev/null || true)
     if [ -n "$CONSOLE_LOGS" ]; then
         print_warning "Found console.log statements in frontend files:"
         echo "$CONSOLE_LOGS"

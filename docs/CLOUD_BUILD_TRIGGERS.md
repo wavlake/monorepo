@@ -65,7 +65,7 @@ The trigger only runs when files change in:
 - `apps/backend/**` - Any backend code changes
 
 It ignores changes in:
-- `apps/frontend/**` - Frontend-only changes
+- `apps/web/**` - Frontend-only changes
 - `docs/**`, `*.md` - Documentation changes  
 - `apps/backend/tests/**` - Test-only changes (optional)
 

@@ -11,7 +11,7 @@ A comprehensive monorepo for Wavlake's music platform, featuring a React TypeScr
 ```
 monorepo/
 ├── apps/
-│   ├── frontend/          # React + TypeScript + Vite
+│   ├── web/               # React + TypeScript + Vite (web client)
 │   └── backend/           # Go API + Firebase + GCP
 ├── packages/
 │   ├── shared-types/      # TypeScript interfaces
@@ -124,7 +124,7 @@ task deploy:backend  # Deploy to GCP Cloud Run
 
 ## 📁 Project Structure
 
-### Frontend (`apps/frontend/`)
+### Frontend (`apps/web/`)
 - **React 18** with TypeScript
 - **Vite** for fast development and building
 - **Firebase Auth** for authentication

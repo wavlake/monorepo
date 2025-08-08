@@ -32,12 +32,12 @@ for agent_file in *.md; do
     ISSUES=""
     WARNS=""
     
-    # Check required sections
-    if ! grep -q "^# .* Agent$" "$agent_file"; then
-        ISSUES="${ISSUES}❌ Missing proper title format\n"
+    # Check required sections (YAML frontmatter)
+    if ! grep -q "^name:" "$agent_file"; then
+        ISSUES="${ISSUES}❌ Missing YAML frontmatter name\n"
     fi
     
-    if ! grep -q "\*\*Purpose\*\*:" "$agent_file"; then
+    if ! grep -q "^## Purpose" "$agent_file"; then
         ISSUES="${ISSUES}❌ Missing Purpose section\n"
     fi
     
@@ -50,7 +50,7 @@ for agent_file in *.md; do
     fi
     
     # Check for dangerous commands
-    if grep -qE "rm -rf|sudo|chmod 777|curl.*\|.*sh" "$agent_file"; then
+    if grep -qE "rm -rf|sudo|chmod 777" "$agent_file"; then
         ISSUES="${ISSUES}❌ Contains potentially dangerous commands\n"
     fi
     

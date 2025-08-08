@@ -345,7 +345,7 @@ task types:generate
 # Verify generated files exist
 ls -la packages/shared-types/api/
 # Check for compilation errors in frontend
-cd apps/frontend && npm run type-check
+cd apps/web && npm run type-check
 ```
 
 ### Full Integration Test (30 min)

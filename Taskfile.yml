@@ -3,7 +3,7 @@ version: '3'
 
 vars:
   GO_MODULE: github.com/wavlake/monorepo
-  FRONTEND_DIR: apps/frontend
+  FRONTEND_DIR: apps/web
   BACKEND_DIR: apps/backend
   SHARED_TYPES_DIR: packages/shared-types
   DEV_RELAY_DIR: packages/dev-relay
@@ -14,8 +14,8 @@ dotenv:
 
 # includes:
 #   frontend:
-#     taskfile: ./apps/frontend/Taskfile.yml
-#     dir: ./apps/frontend
+#     taskfile: ./apps/web/Taskfile.yml
+#     dir: ./apps/web
 #   backend:
 #     taskfile: ./apps/backend/Taskfile.yml
 #     dir: ./apps/backend

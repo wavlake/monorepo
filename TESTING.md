@@ -208,7 +208,7 @@ apps/backend/
 
 ### Frontend Test Structure
 ```
-apps/frontend/
+apps/web/
 ├── src/
 │   ├── components/**/*.test.tsx    # Component unit tests
 │   ├── hooks/**/*.test.ts          # Custom hook tests

@@ -107,7 +107,7 @@ task build           # Production builds (requires tests to pass)
 ## Architecture & Key Systems
 
 ### Monorepo Structure
-- `apps/frontend/` - React + TypeScript + Vite + Tailwind CSS
+- `apps/web/` - React + TypeScript + Vite + Tailwind CSS (web client)
 - `apps/backend/` - Go API with Firebase Admin SDK
 - `packages/shared-types/` - Generated TypeScript interfaces + Nostr types
 - `packages/dev-relay/` - Local Nostr relay configuration

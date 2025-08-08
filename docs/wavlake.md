@@ -30,13 +30,14 @@ wavlake-streaming-monorepo/
 - Real-time updates via WebSocket connections
 - Integration with streaming wallet for credit management
 
-#### 2. Golang Backend API
+#### 2. Golang Backend API (non-payments api)
 - RESTful API serving clients
 - Handles authentication (Nostr NIP-98 and Firebase)
 - Manages presigned URLs for content upload to GCS
 - Processes audio files and generates multiple quality tiers
 - Maintains user and content metadata in PostgreSQL
 - Integrates with streaming credits mint for credit operations
+- Generates presigned URLs for secure content upload
 
 #### 3. PostgreSQL Database
 - Primary datastore for platform operations
@@ -54,26 +55,16 @@ wavlake-streaming-monorepo/
 - Integration with Lightning for direct purchases
 - Gift card legal model for regulatory compliance
 
-#### 5. Payment Splitting Service
+#### 5. Payment Splitting Service (payments api)
 - Processes incoming Lightning payments
 - Reads split metadata from database
 - Calculates and executes payment distributions
 - Handles failed payment retries
 - Maintains settlement records
 
-#### 6. Nostr Relay Infrastructure
+#### 6. Nostr Relay Infrastructure (completed, hosted at wss://relay.wavlake.com)
 - Wavlake relay as primary event store
 - Stores artist profiles, albums, and tracks as Nostr events
-- Enables social features (zaps, comments, shares)
-- Provides decentralized content discovery
-- Backup relay federation for redundancy
-
-#### 7. Content Storage (Google Cloud Storage)
-- Stores original and processed audio files
-- Multiple quality tiers (128kbps, 256kbps, lossless)
-- CDN integration for global content delivery
-- Presigned URLs for secure upload/download
-- Automated backup and lifecycle management
 
 ### Authentication Architecture
 

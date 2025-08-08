@@ -12,9 +12,9 @@ A comprehensive monorepo for Wavlake's music platform, featuring a React TypeScr
 monorepo/
 ├── apps/
 │   ├── web/               # React + TypeScript + Vite (web client)
-│   └── backend/           # Go API + Firebase + GCP
+│   └── api/               # Go API + Firebase + GCP
 ├── packages/
-│   ├── shared-types/      # TypeScript interfaces
+│   ├── shared/            # TypeScript interfaces
 │   └── dev-relay/         # Local nostr relay
 └── tools/                 # Development tools
 ```
@@ -132,14 +132,14 @@ task deploy:backend  # Deploy to GCP Cloud Run
 - **Nostr client** for decentralized features
 - Deployed to **Vercel**
 
-### Backend (`apps/backend/`)
+### API (`apps/api/`)
 - **Go 1.21** with Gin framework
 - **Firebase Admin SDK** for auth and Firestore
 - **GCP Cloud Storage** for file uploads
 - **TypeScript generation** from Go structs
 - Deployed to **GCP Cloud Run**
 
-### Shared Types (`packages/shared-types/`)
+### Shared Types (`packages/shared/`)
 - **Generated API types** from Go structs
 - **Nostr event definitions** (manually maintained)
 - **Common utility types** shared across frontend/backend
@@ -163,7 +163,7 @@ task types:watch
 
 **How it works:**
 1. Go tool analyzes structs in `internal/models`, `internal/handlers`, `internal/types`
-2. Generates TypeScript interfaces in `packages/shared-types/api/`
+2. Generates TypeScript interfaces in `packages/shared/api/`
 3. Frontend imports types for full type safety
 4. Build process ensures types are always up-to-date
 
@@ -537,7 +537,7 @@ Wavlake uses Nostr for decentralized features:
 - **Playlists** (kind 31340)
 - **Lightning payments** (kind 40001-40004)
 
-See `packages/shared-types/nostr/` for complete type definitions.
+See `packages/shared/nostr/` for complete type definitions.
 
 ## 📞 Support
 

@@ -10,7 +10,7 @@ The staging environment (`api-staging`) is deployed to Google Cloud Run using Cl
 
 **Cloud Build triggers automatically deploy to staging** when:
 - Code is pushed to `main` or `develop` branch  
-- Changes are made to `apps/backend/` directory
+- Changes are made to `apps/api/` directory
 - Native GCP integration with no additional authentication required
 
 **Current Setup**: Cloud Build trigger `staging-auto-deploy` is active and configured via `task trigger:create`. See `CLOUD_BUILD_TRIGGERS.md` for detailed configuration and management.
@@ -24,7 +24,7 @@ The staging environment (`api-staging`) is deployed to Google Cloud Run using Cl
 ## Infrastructure Files
 
 ### Cloud Build Configuration
-- **File**: `apps/backend/cloudbuild-staging.yaml`
+- **File**: `apps/api/cloudbuild-staging.yaml`
 - **Purpose**: Automated Docker build and Cloud Run deployment
 - **Triggers**: Manual execution or GitHub integration
 
@@ -34,7 +34,7 @@ The staging environment (`api-staging`) is deployed to Google Cloud Run using Cl
 - **File**: `scripts/deploy-staging-final.sh` - Production-ready variant
 
 ### Integration Tests
-- **File**: `apps/backend/tests/integration/staging_environment_test.go`
+- **File**: `apps/api/tests/integration/staging_environment_test.go`
 - **Purpose**: End-to-end testing of deployed staging environment
 
 ### Task Integration
@@ -62,7 +62,7 @@ cd /Users/joshremaley/dev/wavlake/monorepo
 
 # Submit build to Cloud Build
 gcloud builds submit \
-  --config=apps/backend/cloudbuild-staging.yaml \
+  --config=apps/api/cloudbuild-staging.yaml \
   --project=wavlake-alpha-alpha \
 ```
 
@@ -111,7 +111,7 @@ STAGING_URL=https://your-service-url.run.app task deploy:staging:test
 
 ### Using Integration Tests
 ```bash
-cd apps/backend
+cd apps/api
 
 # Run staging-specific tests
 STAGING_URL=https://api-staging-wavlake-alpha.run.app \
@@ -211,5 +211,5 @@ docker run -p 8080:8080 \
   gcr.io/wavlake/wavlake-api-staging:latest
 
 # Validate Cloud Build configuration
-gcloud builds submit --config=apps/backend/cloudbuild-staging.yaml --dry-run
+gcloud builds submit --config=apps/api/cloudbuild-staging.yaml --dry-run
 ```

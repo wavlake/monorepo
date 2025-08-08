@@ -4,8 +4,8 @@ version: '3'
 vars:
   GO_MODULE: github.com/wavlake/monorepo
   FRONTEND_DIR: apps/web
-  BACKEND_DIR: apps/backend
-  SHARED_TYPES_DIR: packages/shared-types
+  BACKEND_DIR: apps/api
+  SHARED_TYPES_DIR: packages/shared
   DEV_RELAY_DIR: packages/dev-relay
   
 dotenv:
@@ -17,8 +17,8 @@ dotenv:
 #     taskfile: ./apps/web/Taskfile.yml
 #     dir: ./apps/web
 #   backend:
-#     taskfile: ./apps/backend/Taskfile.yml
-#     dir: ./apps/backend
+#     taskfile: ./apps/api/Taskfile.yml
+#     dir: ./apps/api
 
 tasks:
   # === Setup & Installation ===
@@ -495,10 +495,10 @@ tasks:
           --repo-name=monorepo \
           --repo-owner=wavlake \
           --branch-pattern="^(main|develop)$" \
-          --build-config=apps/backend/cloudbuild-staging.yaml \
+          --build-config=apps/api/cloudbuild-staging.yaml \
           --name=staging-auto-deploy \
           --description="Auto-deploy backend to staging on main/develop branch changes" \
-          --included-files="apps/backend/**" \
+          --included-files="apps/api/**" \
           --project=wavlake-alpha
 
   trigger:list:

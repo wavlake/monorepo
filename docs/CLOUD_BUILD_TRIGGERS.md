@@ -39,8 +39,8 @@ This creates a trigger with these settings:
 - **Name**: `staging-auto-deploy`
 - **Repository**: `wavlake/monorepo`
 - **Branches**: `main`, `develop`
-- **Path Filter**: `apps/backend/**`
-- **Build Config**: `apps/backend/cloudbuild-staging.yaml`
+- **Path Filter**: `apps/api/**`
+- **Build Config**: `apps/api/cloudbuild-staging.yaml`
 
 ### Method 3: Using GCP Console (Alternative)
 
@@ -53,8 +53,8 @@ This creates a trigger with these settings:
    - **Source**: `wavlake/monorepo`
    - **Branch**: `^(main|develop)$`
    - **Build Configuration**: Cloud Build configuration file
-   - **Location**: `apps/backend/cloudbuild-staging.yaml`
-   - **Included files filter**: `apps/backend/**`
+   - **Location**: `apps/api/cloudbuild-staging.yaml`
+   - **Included files filter**: `apps/api/**`
 
 
 ## Trigger Configuration Details
@@ -62,12 +62,12 @@ This creates a trigger with these settings:
 ### Path Filtering
 
 The trigger only runs when files change in:
-- `apps/backend/**` - Any backend code changes
+- `apps/api/**` - Any backend code changes
 
 It ignores changes in:
 - `apps/web/**` - Frontend-only changes
 - `docs/**`, `*.md` - Documentation changes  
-- `apps/backend/tests/**` - Test-only changes (optional)
+- `apps/api/tests/**` - Test-only changes (optional)
 
 ### Branch Patterns
 
@@ -78,7 +78,7 @@ The regex `^(main|develop)$` ensures only these branches trigger builds.
 
 ### Build Process
 
-When triggered, the build follows `apps/backend/cloudbuild-staging.yaml`:
+When triggered, the build follows `apps/api/cloudbuild-staging.yaml`:
 
 1. **Docker Build**: Creates optimized Go binary with Alpine Linux
 2. **Push to Artifact Registry**: Stores image at `us-central1-docker.pkg.dev/wavlake-alpha/api-repo/api-staging`
@@ -140,10 +140,10 @@ The Cloud Build service account needs:
 ### Manual Test
 ```bash
 # Make a small change to backend code
-echo "// Trigger test" >> apps/backend/main.go
+echo "// Trigger test" >> apps/api/main.go
 
 # Commit and push
-git add apps/backend/main.go
+git add apps/api/main.go
 git commit -m "test: trigger staging deployment"
 git push origin main
 
@@ -174,7 +174,7 @@ curl https://api-staging-cgi4gylh7q-uc.a.run.app/heartbeat
 **Trigger Not Firing:**
 - Check repository connection in Cloud Build settings
 - Verify branch name matches pattern `^(main|develop)$`
-- Ensure changes are in `apps/backend/` directory
+- Ensure changes are in `apps/api/` directory
 - Check GitHub webhook delivery in repo settings
 
 **Build Failures:**
@@ -195,7 +195,7 @@ curl https://api-staging-cgi4gylh7q-uc.a.run.app/heartbeat
 gcloud builds triggers describe staging-auto-deploy --project=wavlake-alpha
 
 # Test build configuration locally
-gcloud builds submit --config=apps/backend/cloudbuild-staging.yaml --dry-run
+gcloud builds submit --config=apps/api/cloudbuild-staging.yaml --dry-run
 
 # Check service account permissions
 gcloud projects get-iam-policy wavlake-alpha

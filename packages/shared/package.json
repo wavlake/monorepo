@@ -1,7 +1,7 @@
 {
-  "name": "@wavlake/shared-types",
+  "name": "@wavlake/shared",
   "version": "1.0.0",
-  "description": "Shared TypeScript types for Wavlake monorepo",
+  "description": "Shared TypeScript types and utilities for Wavlake monorepo",
   "main": "index.js",
   "module": "index.js",
   "types": "index.d.ts",

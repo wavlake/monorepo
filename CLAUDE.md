@@ -43,7 +43,7 @@ task quality:check            # Comprehensive: lint + test + coverage + build
 
 ## ⚠️ API Migration Status
 
-**IMPORTANT**: The monorepo backend is a simplified implementation compared to the original `/dev/wavlake/api`. See `apps/backend/MIGRATION.md` for a comprehensive analysis of missing functionality including:
+**IMPORTANT**: The monorepo backend is a simplified implementation compared to the original `/dev/wavlake/api`. See `apps/api/MIGRATION.md` for a comprehensive analysis of missing functionality including:
 
 - **Advanced Audio Processing**: Multi-format compression, custom bitrates, quality controls
 - **Track Processing Pipeline**: Webhook integration, status monitoring, Cloud Function automation  
@@ -108,17 +108,17 @@ task build           # Production builds (requires tests to pass)
 
 ### Monorepo Structure
 - `apps/web/` - React + TypeScript + Vite + Tailwind CSS (web client)
-- `apps/backend/` - Go API with Firebase Admin SDK
-- `packages/shared-types/` - Generated TypeScript interfaces + Nostr types
+- `apps/api/` - Go API with Firebase Admin SDK
+- `packages/shared/` - Generated TypeScript interfaces + Nostr types
 - `packages/dev-relay/` - Local Nostr relay configuration
 - `tools/` - Development utilities and scripts
 
 ### Type Generation System
 **Critical for maintaining type safety between Go and TypeScript:**
 
-1. **Source**: Go structs in `apps/backend/internal/{models,handlers}/`
-2. **Tool**: Tygo library (github.com/gzuidhof/tygo) configured via `apps/backend/tygo.yaml`
-3. **Output**: TypeScript interfaces in `packages/shared-types/api/`
+1. **Source**: Go structs in `apps/api/internal/{models,handlers}/`
+2. **Tool**: Tygo library (github.com/gzuidhof/tygo) configured via `apps/api/tygo.yaml`
+3. **Output**: TypeScript interfaces in `packages/shared/api/`
 4. **Usage**: Frontend imports from `@shared` alias
 
 **Process**:
@@ -157,7 +157,7 @@ Custom event kinds for music platform:
 - Music: Track metadata (31337), Albums (31338), Artists (31339), Playlists (31340)
 - Payments: Lightning invoices (40001-40004)
 
-Type definitions in `packages/shared-types/nostr/events.ts` include full NIP compliance.
+Type definitions in `packages/shared/nostr/events.ts` include full NIP compliance.
 
 ### Pre-commit Workflow
 Automated via `tools/scripts/pre-commit.sh`:
@@ -237,7 +237,7 @@ DEFAULT_RELAY_URLS=ws://localhost:10547,wss://relay.wavlake.com
 
 ### Automatic Deployment (GCP Cloud Build Triggers)
 **Backend Staging**: Automatic deployment via GCP Cloud Build trigger
-- **Trigger**: Pushes to `main` or `develop` branches with changes in `apps/backend/**`
+- **Trigger**: Pushes to `main` or `develop` branches with changes in `apps/api/**`
 - **Process**: `cloudbuild-staging.yaml` → Docker build → Cloud Run deployment → Integration tests  
 - **Staging URL**: Auto-generated, accessible via `task deploy:staging:test`
 - **Management**: `task trigger:list`, `task trigger:create`, `task trigger:delete`

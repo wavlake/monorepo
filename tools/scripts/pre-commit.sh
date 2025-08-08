@@ -49,18 +49,18 @@ if has_staged_changes "apps/web"; then
     print_status "Frontend changes detected"
 fi
 
-if has_staged_changes "apps/backend"; then
+if has_staged_changes "apps/api"; then
     BACKEND_CHANGED=true
     print_status "Backend changes detected"
 fi
 
-if has_staged_changes "packages/shared-types" || has_staged_changes "apps/backend/internal/models"; then
+if has_staged_changes "packages/shared" || has_staged_changes "apps/api/internal/models"; then
     TYPES_CHANGED=true
     print_status "Type definitions may have changed"
 fi
 
 # Check for service-level changes that require integration tests
-SERVICE_PATHS="apps/backend/internal/services|apps/backend/internal/handlers|apps/backend/internal/utils|apps/backend/tests/integration"
+SERVICE_PATHS="apps/api/internal/services|apps/api/internal/handlers|apps/api/internal/utils|apps/api/tests/integration"
 if git diff --cached --name-only | grep -E "($SERVICE_PATHS)" > /dev/null; then
     SERVICE_LEVEL_CHANGED=true
     print_status "Service-level changes detected - integration tests will be required"
@@ -81,7 +81,7 @@ if [ "$TYPES_CHANGED" = true ] || [ "$BACKEND_CHANGED" = true ]; then
     print_status "Types regenerated"
     
     # Stage any generated type files
-    git add packages/shared-types/api/
+    git add packages/shared/api/
 fi
 
 # Run linting and formatting
@@ -114,7 +114,7 @@ if [ "$BACKEND_CHANGED" = true ]; then
     
     # Run backend formatting (and stage changes)
     task format:backend
-    git add apps/backend/
+    git add apps/api/
     
     print_status "Backend linting passed"
 fi

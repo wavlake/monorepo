@@ -31,9 +31,9 @@ echo "Region: $REGION"
 echo ""
 
 # Check if we're in the right directory
-if [ ! -f "apps/backend/cloudbuild-staging.yaml" ]; then
+if [ ! -f "apps/api/cloudbuild-staging.yaml" ]; then
     echo -e "${RED}❌ Error: Please run this script from the monorepo root directory${NC}"
-    echo "Expected file: apps/backend/cloudbuild-staging.yaml"
+    echo "Expected file: apps/api/cloudbuild-staging.yaml"
     exit 1
 fi
 
@@ -67,7 +67,7 @@ echo "This will build and deploy the Docker image automatically."
 echo ""
 
 BUILD_ID=$($GCLOUD_CMD builds submit \
-    --config=apps/backend/cloudbuild-staging.yaml \
+    --config=apps/api/cloudbuild-staging.yaml \
     --project=$PROJECT_ID \
     --format="value(id)")
 

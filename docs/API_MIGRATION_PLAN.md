@@ -1,8 +1,8 @@
-# API Migration Plan: api/ → monorepo/apps/backend/
+# API Migration Plan: api/ → monorepo/apps/api/
 
 ## Executive Summary
 
-This document outlines the strategic migration of the Wavlake Go API from the standalone `api/` directory to the monorepo structure at `monorepo/apps/backend/`. The migration preserves all existing functionality while integrating with the monorepo's TDD-focused development workflow and type generation system.
+This document outlines the strategic migration of the Wavlake Go API from the standalone `api/` directory to the monorepo structure at `monorepo/apps/api/`. The migration preserves all existing functionality while integrating with the monorepo's TDD-focused development workflow and type generation system.
 
 ## Current State Analysis
 
@@ -24,7 +24,7 @@ This document outlines the strategic migration of the Wavlake Go API from the st
 - **Audio Processing**: FFmpeg-based compression pipeline
 - **Deployment**: Docker containers to Cloud Run
 
-### Monorepo Structure (Target: `monorepo/apps/backend/`)
+### Monorepo Structure (Target: `monorepo/apps/api/`)
 - **Go Version**: 1.23.0 (needs update to match api/)
 - **Module**: `github.com/wavlake/monorepo`
 - **Testing Framework**: Ginkgo/Gomega (TDD-focused)
@@ -84,14 +84,14 @@ This document outlines the strategic migration of the Wavlake Go API from the st
 ### Quick Structure Check (5 min)
 ```bash
 # Verify directory structure
-ls -la monorepo/apps/backend/internal/
-ls -la monorepo/apps/backend/cmd/
-ls -la monorepo/apps/backend/tests/
+ls -la monorepo/apps/api/internal/
+ls -la monorepo/apps/api/cmd/
+ls -la monorepo/apps/api/tests/
 ```
 
 ### Go Module Validation (10 min)
 ```bash
-cd monorepo/apps/backend
+cd monorepo/apps/api
 go mod verify
 go mod download
 go list -m all | grep -E "(firebase|gin|cors|lib/pq|nostr|testify)"
@@ -99,7 +99,7 @@ go list -m all | grep -E "(firebase|gin|cors|lib/pq|nostr|testify)"
 
 ### Build Testing (15 min)
 ```bash
-cd monorepo/apps/backend
+cd monorepo/apps/api
 # Should fail with missing internal packages (expected)
 go build ./cmd/api  
 # Should succeed (no internal dependencies)
@@ -108,7 +108,7 @@ go build ./cmd/fileserver
 
 ### Docker Build Test (5 min)
 ```bash
-cd monorepo/apps/backend
+cd monorepo/apps/api
 # Should fail at Go build stage (expected)
 docker build -t test-backend -f Dockerfile . 
 ```
@@ -178,7 +178,7 @@ These are exactly the packages that will be migrated in **Phase 2: Core Migratio
 
 #### 1.1 Module & Dependency Migration
 ```bash
-# Update monorepo/apps/backend/go.mod
+# Update monorepo/apps/api/go.mod
 - Update Go version from 1.23.0 → 1.24.1
 - Migrate all dependencies from api/go.mod
 - Add missing dependencies:
@@ -191,7 +191,7 @@ These are exactly the packages that will be migrated in **Phase 2: Core Migratio
 
 #### 1.2 Directory Structure Setup
 ```
-monorepo/apps/backend/
+monorepo/apps/api/
 ├── cmd/
 │   ├── api/          # Renamed from server/
 │   │   └── main.go   # Updated module paths
@@ -308,7 +308,7 @@ monorepo/apps/backend/
 
 ### Authentication System Test (15 min)
 ```bash
-cd monorepo/apps/backend
+cd monorepo/apps/api
 # Test compilation of auth components
 go build ./internal/auth/...
 # Test middleware initialization (should not panic)
@@ -317,7 +317,7 @@ go test ./internal/auth -v
 
 ### Service Layer Test (20 min)
 ```bash
-cd monorepo/apps/backend
+cd monorepo/apps/api
 # Test all services compile
 go build ./internal/services/...
 # Test service interfaces
@@ -328,7 +328,7 @@ go test -tags=integration ./internal/services
 
 ### Handlers Test (25 min)
 ```bash
-cd monorepo/apps/backend
+cd monorepo/apps/api
 # Test handlers compilation
 go build ./internal/handlers/...
 # Test handler functionality
@@ -343,14 +343,14 @@ cd monorepo
 # Generate TypeScript interfaces
 task types:generate
 # Verify generated files exist
-ls -la packages/shared-types/api/
+ls -la packages/shared/api/
 # Check for compilation errors in frontend
 cd apps/web && npm run type-check
 ```
 
 ### Full Integration Test (30 min)
 ```bash
-cd monorepo/apps/backend
+cd monorepo/apps/api
 # Test main application compilation
 go build ./cmd/api
 # Test application startup (should not crash)
@@ -361,7 +361,7 @@ DEVELOPMENT=true SKIP_AUTH=true timeout 10s go run ./cmd/api || echo "Dev startu
 
 ### Docker Build Test (10 min)
 ```bash
-cd monorepo/apps/backend
+cd monorepo/apps/api
 # Test Docker build process (should complete without errors)
 docker build -t test-phase2-backend -f Dockerfile .
 ```
@@ -540,7 +540,7 @@ internal/types/
 ### 6. TypeScript Interface Generation Validation ✅ COMPLETED
 **Goal**: Ensure Go structs generate correct TypeScript interfaces for frontend
 - [x] Run `task types:generate` successfully
-- [x] Verify generated files in `packages/shared-types/api/`: models.ts, requests.ts, responses.ts, common.ts, index.ts
+- [x] Verify generated files in `packages/shared/api/`: models.ts, requests.ts, responses.ts, common.ts, index.ts
 - [x] Check generated interfaces match Go struct definitions with proper JSON field mappings
 - [x] Confirm build process integration works correctly
 
@@ -570,7 +570,7 @@ internal/types/
 
 ### Application Startup Test (5 min)
 ```bash
-cd monorepo/apps/backend
+cd monorepo/apps/api
 # Should start successfully and respond to heartbeat
 DEVELOPMENT=true SKIP_AUTH=true BACKEND_PORT=3000 go run ./cmd/api &
 sleep 3
@@ -580,7 +580,7 @@ pkill -f "go run ./cmd/api"
 
 ### Authentication Endpoints Test (10 min)
 ```bash
-cd monorepo/apps/backend
+cd monorepo/apps/api
 DEVELOPMENT=true SKIP_AUTH=true BACKEND_PORT=3000 go run ./cmd/api &
 sleep 3
 # All should return appropriate error codes and messages
@@ -593,7 +593,7 @@ pkill -f "go run ./cmd/api"
 
 ### Track Endpoints Test (10 min)
 ```bash
-cd monorepo/apps/backend
+cd monorepo/apps/api
 DEVELOPMENT=true SKIP_AUTH=true BACKEND_PORT=3000 go run ./cmd/api &
 sleep 3
 # Should validate parameters and require authentication
@@ -609,19 +609,19 @@ pkill -f "go run ./cmd/api"
 cd monorepo
 # Should generate TypeScript interfaces successfully
 task types:generate
-ls -la packages/shared-types/api/  # Should show generated .ts files
+ls -la packages/shared/api/  # Should show generated .ts files
 ```
 
 ### Docker Build Test (5 min)
 ```bash
-cd monorepo/apps/backend
+cd monorepo/apps/api
 # Should build successfully without errors
 docker build -t test-phase3-backend -f Dockerfile .
 ```
 
 ### Compilation Test (2 min)
 ```bash
-cd monorepo/apps/backend
+cd monorepo/apps/api
 # Should compile without errors
 go build ./cmd/api
 go build ./cmd/fileserver
@@ -744,7 +744,7 @@ DELETE /v1/tracks/:trackId          # ✅ 401 "Missing Authorization header" (NI
 ```bash
 # Test Results
 task types:generate                 # ✅ SUCCESS - "Types generated successfully"
-ls packages/shared-types/api/       # ✅ Generated: models.ts, requests.ts, responses.ts, common.ts, index.ts
+ls packages/shared/api/       # ✅ Generated: models.ts, requests.ts, responses.ts, common.ts, index.ts
 ```
 
 **Generated Interfaces**:
@@ -1053,7 +1053,7 @@ monorepo/
 
 #### **1. Cloud Build Pipeline Configuration**
 ```yaml
-# File: apps/backend/cloudbuild-staging.yaml
+# File: apps/api/cloudbuild-staging.yaml
 - Docker image build with multi-stage optimization
 - Automatic push to Container Registry (gcr.io/PROJECT_ID/wavlake-api-staging)
 - Cloud Run deployment with production-like configuration
@@ -1082,7 +1082,7 @@ task deploy:staging:test   # Comprehensive integration testing
 
 #### **4. Integration Test Suite**
 ```go
-// File: apps/backend/tests/integration/staging_environment_test.go
+// File: apps/api/tests/integration/staging_environment_test.go
 - Staging-specific HTTP client with 30s timeout
 - Heartbeat endpoint validation  
 - Multi-endpoint API testing (v1/heartbeat, /dev/status, auth endpoints)
@@ -1133,7 +1133,7 @@ task deploy:staging:test
 **Manual Cloud Build Alternative**:
 ```bash
 gcloud builds submit \
-  --config=apps/backend/cloudbuild-staging.yaml \
+  --config=apps/api/cloudbuild-staging.yaml \
   --project=wavlake-alpha \
 ```
 

@@ -180,7 +180,7 @@ go test ./internal/auth -v  # (after creating auth tests)
 
 #### Backend Test Organization
 ```
-apps/backend/
+apps/api/
 ├── internal/
 │   ├── handlers/*_test.go     # HTTP handler tests (48.1% coverage)
 │   ├── services/*_test.go     # Business logic tests (4.2% coverage)
@@ -312,7 +312,7 @@ task health                   # Service health checks
 ## 📋 Application-Specific Details
 
 ### Backend Deep Dive
-**Current Critical Issues**: See `apps/backend/TESTING.md` for comprehensive backend-specific analysis, including:
+**Current Critical Issues**: See `apps/api/TESTING.md` for comprehensive backend-specific analysis, including:
 - Detailed coverage gaps by service
 - Mock generation strategies  
 - Disabled test fixes
